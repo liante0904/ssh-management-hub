@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
-import { isLoggedIn, clearToken } from './lib/api';
-import Login from './views/Login';
+import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import LoginScreen from './components/auth/LoginScreen';
 import Dashboard from './views/Dashboard';
 import Users from './views/Users';
 import Reports from './views/Reports';
@@ -17,16 +16,14 @@ const nav = [
 ];
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
-  const navigate = useNavigate();
+  const { token, authState, logout, isInitialized } = useAuth();
 
-  const logout = () => { clearToken(); setLoggedIn(false); navigate('/login'); };
+  if (!isInitialized) return null;
 
-  if (!loggedIn) {
+  if (authState !== 'ready') {
     return (
       <Routes>
-        <Route path="/login" element={<Login onLogin={() => setLoggedIn(true)} />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<LoginScreen />} />
       </Routes>
     );
   }

@@ -7,6 +7,7 @@ export default defineConfig({
     port: 5175,
     host: true,
     proxy: {
+      '/api/auth': 'http://localhost:8002',
       '/admin': 'http://localhost:8003',
       '/api': 'http://localhost:8003',
       '/health': 'http://localhost:8003'

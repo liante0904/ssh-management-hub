@@ -1,5 +1,3 @@
-const BASE = import.meta.env.VITE_API_BASE_URL || '';
-
 function token() {
   return localStorage.getItem('mh_token');
 }
@@ -12,23 +10,20 @@ export function clearToken() {
   localStorage.removeItem('mh_token');
 }
 
-export function isLoggedIn() {
-  return !!token();
-}
-
 async function req(method, path, body) {
   const headers = { 'Content-Type': 'application/json' };
   const t = token();
   if (t) headers['Authorization'] = `Bearer ${t}`;
 
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(path, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
 
   if (res.status === 401) {
-    clearToken();
+    localStorage.removeItem('mh_token');
+    localStorage.removeItem('mh_user');
     throw new Error('Unauthorized');
   }
 
@@ -41,12 +36,9 @@ async function req(method, path, body) {
 }
 
 export const api = {
-  // Auth
-  login: (secret) => req('POST', '/api/auth/login', { secret }),
-
   // Admin
   metrics: () => req('GET', '/admin/metrics'),
-  logs: (path) => req('GET', `/admin/logs${path ? `?path=${encodeURIComponent(path)}` : ''}`),
+  logs: (p) => req('GET', `/admin/logs${p ? `?path=${encodeURIComponent(p)}` : ''}`),
   logView: (file, lines = 500, tail = true) =>
     req('GET', `/admin/logs/view?file=${encodeURIComponent(file)}&lines=${lines}&tail=${tail}`),
 

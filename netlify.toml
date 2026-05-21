@@ -1,29 +1,28 @@
-[dev]
-  command = "npm run dev"
-  targetPort = 5175
-  publish = "dist"
-
 [build]
   command = "npm run build"
   publish = "dist"
 
-# API 프록시: /api/admin/* → Backend Server
+# Telegram 인증 → private-hub 백엔드
 [[redirects]]
-  from = "/api/admin/*"
+  from = "/api/auth/*"
+  to = "https://ssh-oci.duckdns.org/internal/auth/:splat"
+  status = 200
+  force = true
+
+# 관리 API → management-hub 백엔드
+[[redirects]]
+  from = "/admin/*"
   to = "https://ssh-oci.duckdns.org/admin/:splat"
   status = 200
   force = true
-  headers = {X-From = "Netlify"}
 
-# API 프록시: /api/health → Backend Health
 [[redirects]]
-  from = "/api/health"
-  to = "https://ssh-oci.duckdns.org/admin/health"
+  from = "/api/*"
+  to = "https://ssh-oci.duckdns.org/:splat"
   status = 200
   force = true
-  headers = {X-From = "Netlify"}
 
-# SPA fallback: 모든 경로를 index.html로
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
