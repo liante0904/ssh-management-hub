@@ -1,12 +1,39 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import TelegramLoginWidget from './TelegramLoginWidget';
 
 export default function LoginScreen() {
   const { login, authState, authMessage } = useAuth();
+  const [secret, setSecret] = useState('');
+  const [showFallback, setShowFallback] = useState(false);
+  const [fallbackError, setFallbackError] = useState('');
+
+  const fallbackLogin = async (e) => {
+    e.preventDefault();
+    setFallbackError('');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setFallbackError(err.detail || '인증 실패');
+        return;
+      }
+      const data = await res.json();
+      const { setToken: st } = await import('../../lib/api');
+      st(data.access_token);
+      localStorage.setItem('mh_user', JSON.stringify({ first_name: 'Admin' }));
+      window.location.reload();
+    } catch (e) {
+      setFallbackError(e.message);
+    }
+  };
 
   return (
     <div style={{
@@ -43,7 +70,40 @@ export default function LoginScreen() {
           </p>
         )}
 
-        <p style={{ marginTop: '20px', color: '#64748b', fontSize: '0.75rem' }}>
+        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>
+          {!showFallback ? (
+            <button
+              onClick={() => setShowFallback(true)}
+              style={{
+                background: 'transparent', border: 'none', color: '#64748b',
+                cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline'
+              }}>
+              비상 로그인 (Secret Key)
+            </button>
+          ) : (
+            <form onSubmit={fallbackLogin}>
+              <input
+                type="password" placeholder="JWT Secret Key"
+                value={secret} onChange={e => setSecret(e.target.value)}
+                autoFocus
+                style={{
+                  width: '100%', padding: '10px', borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)',
+                  color: 'white', fontSize: '0.9rem', textAlign: 'center', outline: 'none'
+                }}
+              />
+              <button type="submit" disabled={!secret} style={{
+                marginTop: '10px', width: '100%', padding: '10px', borderRadius: '10px',
+                border: 'none', background: secret ? '#0ea5e9' : '#334155',
+                color: 'white', fontWeight: '600', cursor: secret ? 'pointer' : 'default',
+                fontSize: '0.9rem'
+              }}>로그인</button>
+              {fallbackError && <p style={{ color: '#fca5a5', fontSize: '0.8rem', marginTop: '8px' }}>{fallbackError}</p>}
+            </form>
+          )}
+        </div>
+
+        <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.75rem' }}>
           관리자 승인을 받은 Telegram 계정만 접근 가능합니다
         </p>
       </div>
