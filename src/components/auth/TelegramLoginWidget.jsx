@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 
-const BOT_USERNAME = 'ssh_private_hub_bot';
+const BOT_USERNAME = 'ssh_management_hub_bot';
 
 export default function TelegramLoginWidget({ onAuth }) {
   const containerRef = useRef(null);
