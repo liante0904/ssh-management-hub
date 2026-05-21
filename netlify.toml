@@ -2,23 +2,16 @@
   command = "npm run build"
   publish = "dist"
 
-# Telegram 인증 → private-hub 백엔드
-[[redirects]]
-  from = "/api/auth/*"
-  to = "https://ssh-oci.duckdns.org/internal/auth/:splat"
-  status = 200
-  force = true
-
-# 관리 API → management-hub 백엔드
-[[redirects]]
-  from = "/admin/*"
-  to = "https://ssh-oci.duckdns.org/admin/:splat"
-  status = 200
-  force = true
-
+# API → management-hub 백엔드
 [[redirects]]
   from = "/api/*"
   to = "https://ssh-oci.duckdns.org/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/*"
+  to = "https://ssh-oci.duckdns.org/admin/:splat"
   status = 200
   force = true
 
