@@ -4,7 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { persistAuthSession, clearAuthSession, getSession } from '../lib/authSession';
 import { setToken, clearToken } from '../lib/api';
 
-const AUTH_BASE = import.meta.env.VITE_AUTH_BASE_URL || '';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const AUTH_BASE = import.meta.env.VITE_AUTH_BASE_URL || API_BASE;
 
 const AuthContext = createContext();
 export function useAuth() { return useContext(AuthContext); }

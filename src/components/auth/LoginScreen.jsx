@@ -15,8 +15,9 @@ export default function LoginScreen() {
   const fallbackLogin = async (e) => {
     e.preventDefault();
     setFallbackError('');
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret }),

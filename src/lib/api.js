@@ -10,12 +10,14 @@ export function clearToken() {
   localStorage.removeItem('mh_token');
 }
 
+const BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 async function req(method, path, body) {
   const headers = { 'Content-Type': 'application/json' };
   const t = token();
   if (t) headers['Authorization'] = `Bearer ${t}`;
 
-  const res = await fetch(path, {
+  const res = await fetch(`${BASE}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
