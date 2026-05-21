@@ -63,7 +63,13 @@ export default function Reports() {
                     <td><span className={`badge ${SYNC_CLASS[r.pdf_sync_status] || ''}`}>{SYNC_LABELS[r.pdf_sync_status] || r.pdf_sync_status}</span></td>
                     <td>{r.gemini_summary ? <span className="badge badge-green">Yes</span> : <span className="badge badge-yellow">No</span>}</td>
                     <td>
-                      <button style={{fontSize:'.7rem',padding:'.15rem .4rem'}} onClick={() => reset(r.report_id)}>Reset</button>
+                      <div className="flex-row gap1">
+                        <button style={{fontSize:'.7rem',padding:'.15rem .4rem'}} onClick={() => reset(r.report_id)}>Reset</button>
+                        {r.pdf_sync_status === -1 && (
+                          <button className="primary" style={{fontSize:'.7rem',padding:'.15rem .4rem'}} 
+                            onClick={() => reset(r.report_id)}>Retry PDF</button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

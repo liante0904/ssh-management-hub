@@ -53,6 +53,11 @@ export const api = {
   },
   updateUserStatus: (id, status) => req('PUT', `/api/users/${id}/status`, { status }),
   toggleAdmin: (id, isAdmin) => req('PUT', `/api/users/${id}/admin`, { is_admin: isAdmin }),
+  deleteUser: (id) => req('DELETE', `/api/users/${id}`),
+
+  // DB Viewer
+  dbTables: () => req('GET', '/admin/db/tables'),
+  dbQuery: (table, limit = 50) => req('GET', `/admin/db/query/${encodeURIComponent(table)}?limit=${limit}`),
 
   // Reports
   reports: (page = 1, filters = {}) => {

@@ -5,6 +5,7 @@ import Dashboard from './views/Dashboard';
 import Users from './views/Users';
 import Reports from './views/Reports';
 import Firms from './views/Firms';
+import Database from './views/Database';
 import Logs from './views/Logs';
 
 const nav = [
@@ -12,6 +13,7 @@ const nav = [
   { path: '/users', label: 'Users', icon: '👥' },
   { path: '/reports', label: 'Reports', icon: '📄' },
   { path: '/firms', label: 'Firms', icon: '🏢' },
+  { path: '/database', label: 'Database', icon: '🗄️' },
   { path: '/logs', label: 'Logs', icon: '📋' },
 ];
 
@@ -48,6 +50,7 @@ export default function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/firms" element={<Firms />} />
+          <Route path="/database" element={<Database />} />
           <Route path="/logs" element={<Logs />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

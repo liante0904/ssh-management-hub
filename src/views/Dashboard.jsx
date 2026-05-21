@@ -12,11 +12,11 @@ export default function Dashboard() {
   if (err) return <div className="card"><p style={{color:'var(--red)'}}>{err}</p></div>;
   if (!metrics) return <div className="card"><p>Loading...</p></div>;
 
-  const { cpu, memory, disk, database, reports, last_activity, system } = metrics;
+  const { cpu, memory, disk, database, reports, last_activity, system, oci2 } = metrics;
 
   return (
     <div>
-      <h2 style={{marginBottom:'1rem'}}>System Overview</h2>
+      <h2 style={{marginBottom:'1rem'}}>System Overview (Local)</h2>
       <div className="stats-grid">
         <div className={`stat ${cpu.percent > 80 ? 'red' : 'green'}`}>
           <div className="stat-value">{cpu.percent}%</div>
@@ -42,11 +42,27 @@ export default function Dashboard() {
           <div className="stat-value">{reports.today_inserts}</div>
           <div className="stat-label">Today</div>
         </div>
-        <div className="stat">
-          <div className="stat-value" style={{fontSize:'1rem'}}>{system.uptime_days}d</div>
-          <div className="stat-label">Uptime</div>
-        </div>
       </div>
+
+      {oci2 && (
+        <>
+          <h2 style={{margin:'2rem 0 1rem'}}>Remote System (OCI2)</h2>
+          <div className="stats-grid">
+            <div className={`stat ${oci2.cpu_percent > 80 ? 'red' : 'green'}`}>
+              <div className="stat-value">{oci2.cpu_percent}%</div>
+              <div className="stat-label">CPU (Remote)</div>
+            </div>
+            <div className={`stat ${oci2.percent > 80 ? 'red' : 'green'}`}>
+              <div className="stat-value">{oci2.used_gb}/{oci2.total_gb} GB</div>
+              <div className="stat-label">RAM (Remote)</div>
+            </div>
+            <div className={`stat ${oci2.disk_percent > 80 ? 'red' : 'green'}`}>
+              <div className="stat-value">{oci2.disk_percent}%</div>
+              <div className="stat-label">Disk ({oci2.disk_used_gb}/{oci2.disk_total_gb} GB)</div>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="card mt1">
         <h2>Last Activity</h2>

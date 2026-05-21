@@ -29,6 +29,11 @@ export default function Users() {
     api.toggleAdmin(id, isAdmin).then(load).catch(e => setErr(e.message));
   };
 
+  const deleteUser = (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    api.deleteUser(id).then(load).catch(e => setErr(e.message));
+  };
+
   return (
     <div>
       <h2 style={{marginBottom:'1rem'}}>Users</h2>
@@ -65,12 +70,16 @@ export default function Users() {
                         {u.is_admin ? 'Revoke' : 'Grant'}
                       </button>
                     </td>
-                    <td className="flex-row">
-                      {['active','blocked','inactive'].map(s => (
-                        <button key={s} className={u.status === s ? 'primary' : ''}
-                          style={{fontSize:'.7rem',padding:'.15rem .35rem'}}
-                          onClick={() => toggleStatus(u.id, s)} disabled={u.status === s}>{s}</button>
-                      ))}
+                    <td className="flex-row gap1">
+                      <div className="flex-row">
+                        {['active','blocked','inactive'].map(s => (
+                          <button key={s} className={u.status === s ? 'primary' : ''}
+                            style={{fontSize:'.7rem',padding:'.15rem .35rem'}}
+                            onClick={() => toggleStatus(u.id, s)} disabled={u.status === s}>{s}</button>
+                        ))}
+                      </div>
+                      <button className="danger" style={{fontSize:'.7rem',padding:'.15rem .35rem'}}
+                        onClick={() => deleteUser(u.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
