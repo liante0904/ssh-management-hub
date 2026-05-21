@@ -24,6 +24,7 @@ export default function App() {
     return localStorage.getItem('mh_theme') || 
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -32,6 +33,14 @@ export default function App() {
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
   };
 
   if (!isInitialized) return null;
@@ -46,12 +55,24 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      {/* Mobile header with hamburger */}
+      <div className="mobile-header">
+        <button className="hamburger" onClick={toggleSidebar} aria-label="Toggle navigation">
+          ☰
+        </button>
+        <span className="mobile-brand">SSH Management Hub</span>
+      </div>
+
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar} />}
+
+      <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">SSH Management Hub</div>
         <nav>
           {nav.map(n => (
             <NavLink key={n.path} to={n.path} end={n.path === '/'}
-              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+              onClick={closeSidebar}>
               <span className="nav-icon">{n.icon}</span> {n.label}
             </NavLink>
           ))}
