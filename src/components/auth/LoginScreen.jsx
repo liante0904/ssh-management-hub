@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { setToken } from '../../lib/api';
 import TelegramLoginWidget from './TelegramLoginWidget';
 
 export default function LoginScreen() {
@@ -26,8 +27,7 @@ export default function LoginScreen() {
         return;
       }
       const data = await res.json();
-      const { setToken: st } = await import('../../lib/api');
-      st(data.access_token);
+      setToken(data.access_token);
       localStorage.setItem('mh_user', JSON.stringify({ first_name: 'Admin' }));
       window.location.reload();
     } catch (e) {
