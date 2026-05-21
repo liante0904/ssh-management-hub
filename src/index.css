@@ -1,0 +1,71 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--accent:#38bdf8;--accent2:#818cf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--text:#f1f5f9;--text2:#94a3b8;--border:#334155}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Layout */
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1rem 0;position:fixed;top:0;left:0;bottom:0;z-index:10}
+.sidebar-brand{font-size:1.1rem;font-weight:700;color:var(--accent);padding:0 1rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem}
+.nav-item{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;color:var(--text2);text-decoration:none;font-size:.9rem;transition:all .15s}
+.nav-item:hover,.nav-item.active{background:var(--bg3);color:var(--text)}
+.nav-icon{font-size:1.1rem}
+.btn-logout{margin:auto 1rem 1rem;padding:.5rem;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:6px;cursor:pointer;font-size:.85rem}
+.main-content{flex:1;margin-left:220px;padding:2rem;min-width:0}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.card h2{font-size:1.1rem;color:var(--accent);margin-bottom:1rem}
+
+/* Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center}
+.stat-value{font-size:1.6rem;font-weight:700}
+.stat-label{font-size:.8rem;color:var(--text2);margin-top:.25rem}
+.stat.green .stat-value{color:var(--green)}
+.stat.red .stat-value{color:var(--red)}
+.stat.blue .stat-value{color:var(--accent)}
+
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;padding:.5rem .75rem;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:.5rem .75rem;border-bottom:1px solid rgba(51,65,85,.5);white-space:nowrap}
+tr:hover td{background:rgba(56,189,248,.05)}
+
+/* Badges */
+.badge{padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}
+.badge-green{background:rgba(74,222,128,.15);color:var(--green)}
+.badge-red{background:rgba(248,113,113,.15);color:var(--red)}
+.badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
+.badge-blue{background:rgba(56,189,248,.15);color:var(--accent)}
+
+/* Form */
+input,select,button{padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.85rem}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--bg);border:none;font-weight:600;cursor:pointer}
+button.primary:hover{opacity:.9}
+button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
+.flex-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.mt1{margin-top:1rem}
+.mb1{margin-bottom:1rem}
+.gap1{gap:1rem}
+
+/* Login */
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2.5rem;width:360px;text-align:center}
+.login-box h1{color:var(--accent);margin-bottom:.5rem}
+.login-box p{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
+.login-box input{width:100%;padding:.6rem}
+.login-box button{margin-top:1rem;width:100%;padding:.6rem}
+.login-error{color:var(--red);font-size:.8rem;margin-top:.5rem}
+
+/* Pagination */
+.pagination{display:flex;gap:.25rem;margin-top:1rem}
+.pagination button{padding:.3rem .6rem;min-width:32px}
+.pagination button.active{background:var(--accent);color:var(--bg)}
+.pagination span{color:var(--text2);font-size:.8rem;align-self:center;margin:0 .5rem}
+
+/* Scroll */
+.table-wrap{max-height:60vh;overflow:auto}
+pre.log-content{background:var(--bg);padding:1rem;border-radius:6px;font-size:.8rem;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all}

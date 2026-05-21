@@ -1,0 +1,30 @@
+[dev]
+  command = "npm run dev"
+  targetPort = 5175
+  publish = "dist"
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# API 프록시: /api/admin/* → Backend Server
+[[redirects]]
+  from = "/api/admin/*"
+  to = "https://ssh-oci.duckdns.org/admin/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# API 프록시: /api/health → Backend Health
+[[redirects]]
+  from = "/api/health"
+  to = "https://ssh-oci.duckdns.org/admin/health"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# SPA fallback: 모든 경로를 index.html로
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
