@@ -89,4 +89,8 @@ export const api = {
     if (search) p.set('search', search);
     return req('GET', `/api/firms?${p}`);
   },
+  firmBoards: (orderId) => req('GET', `/api/firms/${orderId}/boards`),
+  createFirmBoard: (orderId, data) => req('POST', `/api/firms/${orderId}/boards`, data),
+  updateFirmBoard: (orderId, boardOrder, data) => req('PUT', `/api/firms/${orderId}/boards/${boardOrder}`, data),
+  deleteFirmBoard: (orderId, boardOrder) => req('DELETE', `/api/firms/${orderId}/boards/${boardOrder}`),
 };

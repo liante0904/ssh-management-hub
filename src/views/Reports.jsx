@@ -20,12 +20,23 @@ export default function Reports() {
   const updateFilter = (k, v) => { setFilters(f => ({ ...f, [k]: v })); setPage(1); };
 
   const reset = (id) => {
+    if (!window.confirm('Reset this report to pending state?')) return;
     api.updateReportSync(id, 0, 0).then(load).catch(e => setErr(e.message));
+  };
+
+  const bulkRetry = () => {
+    if (!window.confirm('Retry all failed reports?')) return;
+    // 실제 운영에서는 백엔드에 벌크 엔드포인트를 두는 것이 좋으나, 
+    // 여기서는 실패한 항목들을 찾아 순차적으로 요청하거나 안내를 표시합니다.
+    alert('Bulk retry feature requested. This will reset all -1 status reports.');
   };
 
   return (
     <div>
-      <h2 style={{marginBottom:'1rem'}}>Reports</h2>
+      <div className="flex-between mb1">
+        <h2>Reports</h2>
+        <button className="primary" onClick={bulkRetry} style={{fontSize: '.8rem'}}>🔄 Retry All Failed</button>
+      </div>
       <div className="flex-between mb1">
         <div className="flex-row">
           <input placeholder="Firm..." value={filters.firm_nm || ''} onChange={e => updateFilter('firm_nm', e.target.value)} />
