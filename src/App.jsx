@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginScreen from './components/auth/LoginScreen';
@@ -19,6 +20,19 @@ const nav = [
 
 export default function App() {
   const { token, authState, logout, isInitialized } = useAuth();
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('mh_theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('mh_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   if (!isInitialized) return null;
 
@@ -42,7 +56,13 @@ export default function App() {
             </NavLink>
           ))}
         </nav>
-        <button className="btn-logout" onClick={logout}>Logout</button>
+        <div className="sidebar-footer" style={{marginTop: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+          <button className="nav-item" onClick={toggleTheme} style={{width: '100%', justifyContent: 'flex-start', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', borderRadius: '6px'}}>
+            <span className="nav-icon">{theme === 'light' ? '🌙' : '☀️'}</span>
+            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+          </button>
+          <button className="btn-logout" onClick={logout} style={{margin: 0}}>Logout</button>
+        </div>
       </aside>
       <main className="main-content">
         <Routes>
