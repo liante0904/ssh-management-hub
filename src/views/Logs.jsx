@@ -1,6 +1,118 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Ansi from 'ansi-to-react';
 import { api } from '../lib/api';
+
+// ── Log Syntax Highlighter (vi-style coloring) ─────
+const LOG_COLORS = {
+  ts: '#5a8a6a',      // timestamps
+  err: '#ff6b6b',     // ERROR / CRITICAL / FATAL
+  warn: '#ffd93d',    // WARN
+  info: '#6cc070',    // INFO
+  debug: '#8b8ba0',   // DEBUG / TRACE
+  ip: '#4fc3f7',      // IP addresses
+  url: '#64b5f6',     // URLs
+  path: '#ffd54f',    // file paths
+  num: '#b39ddb',     // numbers
+  key: '#ce93d8',     // JSON keys
+  str: '#a5d6a7',     // JSON strings
+  dim: '#6a6a7a',     // dim text (comments, etc)
+  ok: '#69f0ae',      // success
+};
+
+const PATTERNS = [
+  // Log levels (highest priority)
+  { re: /\b(CRITICAL|FATAL|EMERGENCY|ALERT)\b/g, color: 'err', bold: true },
+  { re: /\b(ERROR|SEVERE|FAIL|FAILED|FAILURE)\b/g, color: 'err', bold: true },
+  { re: /\b(WARN|WARNING)\b/g, color: 'warn' },
+  { re: /\b(INFO|NOTICE)\b/g, color: 'info' },
+  { re: /\b(DEBUG|TRACE|FINE|FINER|FINEST)\b/g, color: 'debug' },
+  // Success
+  { re: /\b(SUCCESS|OK|DONE|COMPLETED|SUCCEEDED|PASSED)\b/g, color: 'ok' },
+  // Error-related words
+  { re: /\b(exception|traceback|stack trace|timeout|refused|denied|forbidden|unauthorized|invalid)\b/gi, color: 'err' },
+  // Timestamps
+  { re: /\b\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?\b/g, color: 'ts' },
+  { re: /\b\d{2}[-/]\w{3}[-/]\d{4}[: ]\d{2}:\d{2}:\d{2}\b/g, color: 'ts' },
+  { re: /\b\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\b/g, color: 'ts' },
+  { re: /\b\d{2}:\d{2}:\d{2}(?:\.\d+)?\b/g, color: 'ts' },
+  // IP addresses
+  { re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, color: 'ip' },
+  // URLs
+  { re: /\bhttps?:\/\/[^\s"'<>|]+/g, color: 'url' },
+  // File paths
+  { re: /(?:\/[^\s,;"'<>|]*)+\/[^\s,;"'<>|]*\.\w+/g, color: 'path' },
+  { re: /\b\w+\.(?:py|js|jsx|ts|tsx|java|go|rs|c|cpp|h|yml|yaml|json|xml|toml|ini|cfg|conf|log|txt|md)(?:\s|$)/g, color: 'path' },
+  // JSON keys
+  { re: /"[^"]+"\s*:/g, color: 'key' },
+  // Hex numbers
+  { re: /\b0x[0-9a-fA-F]+\b/g, color: 'num' },
+];
+
+const HIGHLIGHT_REGEX = (() => {
+  const all = PATTERNS.map(p => `(${p.re.source})`).join('|');
+  return new RegExp(all, 'gi');
+})();
+
+function LogLine({ text }) {
+  // Check for ANSI codes first
+  const hasAnsi = /\x1b\[/.test(text);
+
+  const html = useMemo(() => {
+    if (hasAnsi) return null; // delegate to Ansi component
+
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    const re = new RegExp(HIGHLIGHT_REGEX.source, 'gi');
+
+    while ((match = re.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push({ text: text.slice(lastIndex, match.index), style: {} });
+      }
+      // Find which pattern matched
+      for (let i = 0; i < PATTERNS.length; i++) {
+        if (match[i + 1] !== undefined) {
+          const p = PATTERNS[i];
+          const color = LOG_COLORS[p.color] || '#e0e0e0';
+          parts.push({
+            text: match[0],
+            style: { color, fontWeight: p.bold ? 700 : 400 },
+          });
+          break;
+        }
+      }
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push({ text: text.slice(lastIndex), style: {} });
+    }
+
+    if (parts.length === 0) return text;
+
+    return parts.map((p, i) =>
+      p.style.color
+        ? <span key={i} style={{color: p.style.color, fontWeight: p.style.fontWeight}}>{p.text}</span>
+        : p.text
+    );
+  }, [text]);
+
+  if (hasAnsi) {
+    return (
+      <span style={{display:'block'}}>
+        <Ansi>{text}</Ansi>
+      </span>
+    );
+  }
+
+  return <span style={{display:'block'}}>{html}</span>;
+}
+
+function LogHighlighter({ text }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return lines.map((line, i) => <LogLine key={i} text={line} />);
+}
 
 export default function Logs() {
   const [entries, setEntries] = useState([]);
@@ -225,7 +337,7 @@ export default function Logs() {
                 fontSize: 'inherit',
                 lineHeight: 'inherit'
               }}>
-                <Ansi>{logContent}</Ansi>
+                <LogHighlighter text={logContent} />
               </pre>
             ) : (
               <div className="log-placeholder">
