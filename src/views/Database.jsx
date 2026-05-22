@@ -26,10 +26,13 @@ export default function Database() {
 
   return (
     <div style={{height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column'}}>
-      <h2 style={{marginBottom:'1rem'}}>Database Viewer (main_db)</h2>
+      <div className="page-header">
+        <h2>Database Viewer</h2>
+        {selectedTable && <span style={{fontSize:'.8rem', color:'var(--text2)'}}>main_db</span>}
+      </div>
       {err && <p style={{color:'var(--red)', marginBottom:'.5rem'}}>{err}</p>}
 
-      <div style={{display:'grid', gridTemplateColumns: '250px 1fr', gap:'1rem', flex: 1, overflow: 'hidden'}}>
+      <div style={{display:'grid', gridTemplateColumns: '260px 1fr', gap:'1rem', flex: 1, overflow: 'hidden'}}>
         <div className="table-wrap" style={{height: '100%', overflowY: 'auto'}}>
           <table>
             <thead><tr><th>Table Name</th></tr></thead>

@@ -62,24 +62,24 @@ export default function Firms() {
   };
 
   return (
-    <div style={{minHeight: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-      <div className="flex-between">
-        <h2>🏢 증권사 및 게시판 관리</h2>
+    <div style={{minHeight: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
+      <div className="page-header">
+        <h2>Firms & Boards</h2>
         <div className="flex-row">
           <input 
-            placeholder="증권사 검색..." 
+            placeholder="Search firms..." 
             value={search} 
             onChange={e => setSearch(e.target.value)}
-            style={{padding: '0.6rem 1rem', width: '250px'}}
+            style={{padding: '0.6rem 1rem', minWidth: '220px'}}
           />
         </div>
       </div>
 
       {err && <div className="card" style={{borderLeft: '4px solid var(--red)', padding: '0.75rem 1rem', color: 'var(--red)'}}>{err}</div>}
 
-      <div className="firms-container" style={{display:'flex', flexWrap: 'wrap', gap:'1.5rem', alignItems: 'flex-start'}}>
+      <div className="firms-container" style={{display:'flex', flexWrap: 'wrap', gap:'1.25rem', alignItems: 'flex-start'}}>
         {/* Left: Firms List */}
-        <div className="card" style={{flex: '1 1 450px', padding: '0', overflow: 'hidden'}}>
+        <div className="card" style={{flex: '1 1 400px', padding: '0', overflow: 'hidden'}}>
           <div style={{padding: '1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <h3 style={{fontSize: '1rem'}}>증권사 목록 ({firms.length})</h3>
           </div>
@@ -106,7 +106,7 @@ export default function Firms() {
         </div>
 
         {/* Right: Boards Management */}
-        <div className="card" style={{flex: '1 1 550px', padding: '0', overflow: 'hidden', minHeight: '400px'}}>
+        <div className="card" style={{flex: '1 1 500px', padding: '0', overflow: 'hidden', minHeight: '400px'}}>
           {selectedFirm ? (
             <>
               <div style={{padding: '1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg3)'}}>
