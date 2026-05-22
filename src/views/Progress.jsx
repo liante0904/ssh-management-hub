@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// 탐색할 마크다운 파일명 목록 (GitHub API 없이 raw.githubusercontent.com HEAD 요청)
+const CANDIDATE_FILES = [
+  'README.md', 'PROGRESS.md', 'TODO.md', 'CHANGELOG.md',
+  'CONTRIBUTING.md', 'AGENTS.md', 'API_REFERENCE.md',
+  'docs/README.md', 'docs/PROGRESS.md', '.github/PROGRESS.md',
+];
+
 const REPOS = [
   { owner: 'liante0904', repo: 'ssh-management-hub-fastAPI', label: 'Management Hub API' },
   { owner: 'liante0904', repo: 'ssh-management-hub', label: 'Management Hub Frontend' },
@@ -87,32 +94,35 @@ function RepoRow({ owner, repo, label }) {
   const [modalContent, setModalContent] = useState('');
   const [modalLoading, setModalLoading] = useState(false);
 
-  // Fetch .md file list
+  // raw.githubusercontent.com 에서 HEAD 요청으로 파일 존재 확인 (API rate limit 없음)
   useEffect(() => {
+    let cancelled = false;
     const branches = ['main', 'master'];
-    (async () => {
-      for (const branch of branches) {
-        try {
-          const res = await fetch(
-            `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`
-          );
-          if (!res.ok) continue;
-          const data = await res.json();
-          const files = (data.tree || [])
-            .filter(f => f.type === 'blob' && f.path.endsWith('.md'))
-            .map(f => ({ path: f.path, name: f.path.split('/').pop() }))
-            .sort((a, b) => {
-              if (a.name === 'README.md') return -1;
-              if (b.name === 'README.md') return 1;
-              return a.path.localeCompare(b.path);
-            });
-          setMdFiles(files);
-          setLoading(false);
-          return;
-        } catch {}
+
+    async function probe() {
+      const found = [];
+      for (const file of CANDIDATE_FILES) {
+        if (cancelled) return;
+        for (const branch of branches) {
+          try {
+            const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`;
+            const res = await fetch(url, { method: 'HEAD' });
+            if (res.ok) {
+              found.push({ path: file, name: file.split('/').pop() });
+              break;
+            }
+          } catch {}
+        }
+        if (!cancelled) await new Promise(r => setTimeout(r, 60));
       }
-      setLoading(false);
-    })();
+      if (!cancelled) {
+        setMdFiles(found);
+        setLoading(false);
+      }
+    }
+
+    probe();
+    return () => { cancelled = true; };
   }, [owner, repo]);
 
   // Open modal with file content

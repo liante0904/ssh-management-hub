@@ -5,21 +5,17 @@ import Progress from '../views/Progress';
 describe('Progress Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn((url) => {
-      if (url.includes('api.github.com')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({
-            tree: [
-              { type: 'blob', path: 'README.md' },
-              { type: 'blob', path: 'CHANGELOG.md' },
-            ],
-          }),
-        });
+    // Mock raw.githubusercontent.com HEAD + GET
+    global.fetch = vi.fn((url, opts) => {
+      if (opts?.method === 'HEAD') {
+        // README.md exists, PROGRESS.md exists, others 404
+        const ok = url.includes('README.md') || url.includes('PROGRESS.md');
+        return Promise.resolve({ ok });
       }
+      // GET content
       return Promise.resolve({
         ok: true,
-        text: () => Promise.resolve('# Test Heading\n\nSome content here.'),
+        text: () => Promise.resolve('# Test Heading\n\nContent here.'),
       });
     });
   });
@@ -36,30 +32,27 @@ describe('Progress Page', () => {
     expect(screen.getByText('마크다운 파일')).toBeInTheDocument();
   });
 
-  it('renders repo labels after loading', async () => {
+  it('renders repo labels', async () => {
     render(<Progress />);
-
     await waitFor(() => {
       expect(screen.getByText('Management Hub API')).toBeInTheDocument();
       expect(screen.getByText('DART Scraper Bot')).toBeInTheDocument();
     }, { timeout: 5000 });
   });
 
-  it('shows file buttons per repo', async () => {
+  it('shows found file buttons per repo', async () => {
     render(<Progress />);
-
     await waitFor(() => {
       const buttons = screen.getAllByText('📄 README.md');
       expect(buttons.length).toBeGreaterThan(0);
-    }, { timeout: 5000 });
+    }, { timeout: 8000 });
   });
 
-  it('clicking a file opens modal', async () => {
+  it('clicking a file opens modal with content', async () => {
     render(<Progress />);
-
     await waitFor(() => {
       expect(screen.getAllByText('📄 README.md').length).toBeGreaterThan(0);
-    }, { timeout: 5000 });
+    }, { timeout: 8000 });
 
     fireEvent.click(screen.getAllByText('📄 README.md')[0]);
 
