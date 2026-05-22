@@ -246,6 +246,14 @@ tbody tr:hover td {
   border-left: 3px solid var(--accent) !important;
 }
 
+.row-warning td {
+  background: rgba(248, 113, 113, 0.04) !important;
+}
+
+.row-warning td:first-child {
+  border-left: 3px solid var(--red) !important;
+}
+
 /* ===== STAT CARDS ===== */
 .stats-grid {
   display: grid;
@@ -400,7 +408,6 @@ button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
   font-size: .7rem;
   color: #888;
 }
-
 pre.log-content{background:var(--bg);padding:1rem;border-radius:6px;font-size:.8rem;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all}
 
 /* ===== PAGE HEADER ===== */
