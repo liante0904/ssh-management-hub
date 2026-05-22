@@ -335,6 +335,72 @@ button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
 
 /* ===== SCROLL ===== */
 .table-wrap{max-height:65vh;overflow:auto}
+
+/* ===== LOG VIEWER ===== */
+.log-viewer {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.log-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .5rem .75rem;
+  background: #2d2d44;
+  border-bottom: 1px solid #3a3a5a;
+  font-size: .8rem;
+}
+
+.log-content-area {
+  scroll-behavior: smooth;
+}
+
+.log-content-area pre {
+  tab-size: 4;
+  -moz-tab-size: 4;
+}
+
+.log-content-area::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.log-content-area::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+.log-content-area::-webkit-scrollbar-thumb {
+  background: #3a3a5a;
+  border-radius: 4px;
+}
+
+.log-content-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.log-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  text-align: center;
+}
+
+.log-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .3rem .75rem;
+  background: #2d2d44;
+  border-top: 1px solid #3a3a5a;
+  font-size: .7rem;
+  color: #888;
+}
+
 pre.log-content{background:var(--bg);padding:1rem;border-radius:6px;font-size:.8rem;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all}
 
 /* ===== PAGE HEADER ===== */
