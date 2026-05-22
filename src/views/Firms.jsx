@@ -64,7 +64,7 @@ export default function Firms() {
   return (
     <div style={{minHeight: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
       <div className="page-header">
-        <h2>Firms & Boards</h2>
+        <h2>증권사 관리</h2>
         <div className="flex-row">
           <input 
             placeholder="Search firms..." 

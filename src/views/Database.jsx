@@ -27,7 +27,7 @@ export default function Database() {
   return (
     <div style={{height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column'}}>
       <div className="page-header">
-        <h2>Database Viewer</h2>
+        <h2>DB 뷰어</h2>
         {selectedTable && <span style={{fontSize:'.8rem', color:'var(--text2)'}}>main_db</span>}
       </div>
       {err && <p style={{color:'var(--red)', marginBottom:'.5rem'}}>{err}</p>}

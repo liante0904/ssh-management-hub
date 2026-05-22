@@ -17,8 +17,9 @@ export default function Users() {
   useEffect(load, [page, status, search]);
 
   const statusBadge = (s) => {
+    const labels = { active: '활성', blocked: '차단', inactive: '비활성' };
     const cls = s === 'active' ? 'badge-green' : s === 'blocked' ? 'badge-red' : 'badge-yellow';
-    return <span className={`badge ${cls}`}>{s}</span>;
+    return <span className={`badge ${cls}`}>{labels[s] || s}</span>;
   };
 
   const toggleStatus = (id, newStatus) => {
@@ -30,24 +31,26 @@ export default function Users() {
   };
 
   const deleteUser = (id) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('정말 이 사용자를 삭제하시겠습니까?')) return;
     api.deleteUser(id).then(load).catch(e => setErr(e.message));
   };
+
+  const statusLabels = { active: '활성', blocked: '차단', inactive: '비활성' };
 
   return (
     <div>
       <div className="page-header">
-        <h2>Users</h2>
-        {data && <span style={{color:'var(--text2)',fontSize:'.85rem'}}>Total: {data.total.toLocaleString()}</span>}
+        <h2>사용자 관리</h2>
+        {data && <span style={{color:'var(--text2)',fontSize:'.9rem'}}>총 {data.total.toLocaleString()}명</span>}
       </div>
 
       <div className="flex-row gap1 mb1" style={{flexWrap: 'wrap'}}>
-        <input placeholder="Search by name or username..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{minWidth:'220px'}} />
+        <input placeholder="이름 또는 사용자명 검색..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{minWidth:'240px'}} />
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
-          <option value="">All status</option>
-          <option value="active">Active</option>
-          <option value="blocked">Blocked</option>
-          <option value="inactive">Inactive</option>
+          <option value="">전체 상태</option>
+          <option value="active">활성</option>
+          <option value="blocked">차단</option>
+          <option value="inactive">비활성</option>
         </select>
       </div>
 
@@ -57,29 +60,31 @@ export default function Users() {
         <>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>ID</th><th>Name</th><th>Username</th><th>Status</th><th>Admin</th><th>Actions</th></tr></thead>
+              <thead><tr><th>ID</th><th>이름</th><th>사용자명</th><th>상태</th><th>관리자</th><th>작업</th></tr></thead>
               <tbody>
                 {data.users.map(u => (
                   <tr key={u.id}>
-                    <td style={{fontWeight:500,fontSize:'.8rem',color:'var(--text2)'}}>#{u.id}</td>
+                    <td style={{fontWeight:500,color:'var(--text2)'}}>#{u.id}</td>
                     <td style={{fontWeight:500}}>{u.first_name} {u.last_name}</td>
                     <td style={{color:'var(--accent)'}}>@{u.username}</td>
                     <td>{statusBadge(u.status)}</td>
                     <td>
-                      <button className={u.is_admin ? 'danger' : 'primary'} style={{fontSize:'.75rem',padding:'.25rem .5rem'}}
+                      <button className={u.is_admin ? 'danger' : 'primary'} style={{fontSize:'.8rem',padding:'.3rem .6rem'}}
                         onClick={() => toggleAdmin(u.id, !u.is_admin)}>
-                        {u.is_admin ? 'Revoke' : 'Grant'}
+                        {u.is_admin ? '해제' : '부여'}
                       </button>
                     </td>
                     <td>
                       <div className="flex-row" style={{gap:'.3rem'}}>
                         {['active','blocked','inactive'].map(s => (
                           <button key={s} className={u.status === s ? 'primary' : ''}
-                            style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
-                            onClick={() => toggleStatus(u.id, s)} disabled={u.status === s}>{s}</button>
+                            style={{fontSize:'.78rem',padding:'.3rem .5rem'}}
+                            onClick={() => toggleStatus(u.id, s)} disabled={u.status === s}>
+                            {statusLabels[s]}
+                          </button>
                         ))}
-                        <button className="danger" style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
-                          onClick={() => deleteUser(u.id)}>Delete</button>
+                        <button className="danger" style={{fontSize:'.78rem',padding:'.3rem .5rem'}}
+                          onClick={() => deleteUser(u.id)}>삭제</button>
                       </div>
                     </td>
                   </tr>

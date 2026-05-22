@@ -73,15 +73,15 @@ export default function Reports() {
   return (
     <div>
       <div className="page-header">
-        <h2>Reports</h2>
+        <h2>리포트 관리</h2>
         <div className="flex-row gap1">
           {totalFailed > 0 && (
-            <span className="badge badge-red" style={{fontSize: '.8rem', padding: '.35rem .65rem'}}>
-              ⚠️ {totalFailed} failed
+            <span className="badge badge-red" style={{fontSize: '.85rem', padding: '.4rem .7rem'}}>
+              ⚠️ {totalFailed}건 실패
             </span>
           )}
-          <button className="primary" onClick={bulkRetryFailed} disabled={retrying} style={{fontSize: '.8rem'}}>
-            🔄 {retrying ? 'Retrying...' : 'Bulk Retry Failed PDFs'}
+          <button className="primary" onClick={bulkRetryFailed} disabled={retrying} style={{fontSize: '.9rem',padding:'.5rem .85rem'}}>
+            🔄 {retrying ? '재처리 중...' : '실패 PDF 일괄 재처리'}
           </button>
         </div>
       </div>
@@ -93,19 +93,19 @@ export default function Reports() {
       )}
 
       <div className="flex-row gap1 mb1" style={{flexWrap: 'wrap'}}>
-        <input placeholder="Firm name..." value={filters.firm_nm || ''} onChange={e => updateFilter('firm_nm', e.target.value)} style={{minWidth: '160px'}} />
-        <input placeholder="Date YYYYMMDD..." value={filters.reg_dt || ''} onChange={e => updateFilter('reg_dt', e.target.value)} style={{width: '140px'}} />
+        <input placeholder="증권사명..." value={filters.firm_nm || ''} onChange={e => updateFilter('firm_nm', e.target.value)} style={{minWidth: '160px'}} />
+        <input placeholder="날짜 YYYYMMDD..." value={filters.reg_dt || ''} onChange={e => updateFilter('reg_dt', e.target.value)} style={{width: '150px'}} />
         <select value={filters.sync_status ?? ''} onChange={e => updateFilter('sync_status', e.target.value ? Number(e.target.value) : undefined)}>
-          <option value="">All sync status</option>
-          <option value="0">Pending</option>
-          <option value="1">Processing</option>
-          <option value="2">Done</option>
-          <option value="-1">Failed</option>
+          <option value="">전체 동기화</option>
+          <option value="0">대기</option>
+          <option value="1">처리중</option>
+          <option value="2">완료</option>
+          <option value="-1">실패</option>
         </select>
-        <input placeholder="Title search..." value={filters.search || ''} onChange={e => updateFilter('search', e.target.value)} style={{minWidth: '180px'}} />
+        <input placeholder="제목 검색..." value={filters.search || ''} onChange={e => updateFilter('search', e.target.value)} style={{minWidth: '180px'}} />
         <select value={filters.pdf_failed ?? ''} onChange={e => updateFilter('pdf_failed', e.target.value || undefined)}>
-          <option value="">All PDF status</option>
-          <option value="1">PDF Failed Only</option>
+          <option value="">전체 PDF</option>
+          <option value="1">PDF 실패만</option>
         </select>
       </div>
 
@@ -114,7 +114,7 @@ export default function Reports() {
       {data && (
         <>
           <div className="flex-between mb1" style={{fontSize: '.8rem', color: 'var(--text2)'}}>
-            <span>Total: {data.total.toLocaleString()} reports</span>
+            <span>총 {data.total.toLocaleString()}건</span>
             <span>Page {page} of {Math.ceil(data.total / data.page_size)}</span>
           </div>
 
@@ -123,14 +123,14 @@ export default function Reports() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Firm</th>
-                  <th style={{minWidth: '200px'}}>Title</th>
-                  <th>Date</th>
-                  <th>Download</th>
-                  <th>Sync</th>
+                  <th>증권사</th>
+                  <th style={{minWidth: '200px'}}>제목</th>
+                  <th>날짜</th>
+                  <th>다운로드</th>
+                  <th>동기화</th>
                   <th>PDF</th>
-                  <th>Summary</th>
-                  <th style={{minWidth: '140px'}}>Actions</th>
+                  <th>요약</th>
+                  <th style={{minWidth: '140px'}}>작업</th>
                 </tr>
               </thead>
               <tbody>

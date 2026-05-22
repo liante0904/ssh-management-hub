@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
+import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginScreen from './components/auth/LoginScreen';
 import Dashboard from './views/Dashboard';
@@ -8,18 +8,21 @@ import Reports from './views/Reports';
 import Firms from './views/Firms';
 import Database from './views/Database';
 import Logs from './views/Logs';
+import Progress from './views/Progress';
 
 const nav = [
-  { path: '/', label: 'Dashboard', icon: '📊' },
-  { path: '/users', label: 'Users', icon: '👥' },
-  { path: '/reports', label: 'Reports', icon: '📄' },
-  { path: '/firms', label: 'Firms', icon: '🏢' },
-  { path: '/database', label: 'Database', icon: '🗄️' },
-  { path: '/logs', label: 'Logs', icon: '📋' },
+  { path: '/', label: '대시보드', icon: '📊' },
+  { path: '/users', label: '사용자 관리', icon: '👥' },
+  { path: '/reports', label: '리포트 관리', icon: '📄' },
+  { path: '/firms', label: '증권사 관리', icon: '🏢' },
+  { path: '/database', label: 'DB 뷰어', icon: '🗄️' },
+  { path: '/logs', label: '로그 뷰어', icon: '📋' },
+  { path: '/progress', label: '진행 현황', icon: '📈' },
 ];
 
 export default function App() {
   const { token, authState, logout, isInitialized } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('mh_theme') || 
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -71,16 +74,18 @@ export default function App() {
         <button className="hamburger" onClick={toggleSidebar} aria-label="Toggle navigation">
           ☰
         </button>
-        <span className="mobile-brand">SSH Management Hub</span>
+        <span className="mobile-brand" onClick={() => navigate('/')} style={{cursor:'pointer'}}>
+          SSH Management Hub
+        </span>
       </div>
 
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar} />}
 
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="sidebar-brand">
+        <div className="sidebar-brand" onClick={() => { navigate('/'); closeSidebar(); }} style={{cursor:'pointer'}}>
           {!sidebarCollapsed && 'SSH Management Hub'}
-          <button className="sidebar-collapse-btn" onClick={toggleSidebarCollapse} aria-label="Toggle sidebar" title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+          <button className="sidebar-collapse-btn" onClick={(e) => { e.stopPropagation(); toggleSidebarCollapse(); }} aria-label="Toggle sidebar" title={sidebarCollapsed ? '메뉴 펼치기' : '메뉴 접기'}>
             {sidebarCollapsed ? '▶' : '◀'}
           </button>
         </div>
@@ -96,13 +101,13 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <button className="nav-item sidebar-theme-btn" onClick={toggleTheme} title={sidebarCollapsed ? (theme === 'light' ? 'Dark Mode' : 'Light Mode') : undefined}>
+          <button className="nav-item sidebar-theme-btn" onClick={toggleTheme} title={sidebarCollapsed ? (theme === 'light' ? '다크 모드' : '라이트 모드') : undefined}>
             <span className="nav-icon">{theme === 'light' ? '🌙' : '☀️'}</span>
-            <span className="nav-label">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+            <span className="nav-label">{theme === 'light' ? '다크 모드' : '라이트 모드'}</span>
           </button>
           <button className="btn-logout" onClick={logout}>
             <span className="nav-icon">🚪</span>
-            <span className="nav-label">Logout</span>
+            <span className="nav-label">로그아웃</span>
           </button>
         </div>
       </aside>
@@ -114,6 +119,7 @@ export default function App() {
           <Route path="/firms" element={<Firms />} />
           <Route path="/database" element={<Database />} />
           <Route path="/logs" element={<Logs />} />
+          <Route path="/progress" element={<Progress />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

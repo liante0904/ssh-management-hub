@@ -78,18 +78,18 @@ export default function Logs() {
   return (
     <div style={{height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column'}}>
       <div className="page-header">
-        <h2>Logs</h2>
+        <h2>로그 뷰어</h2>
         <div className="flex-row gap1">
           {currentFile && (
             <>
               <button onClick={toggleWideMode} className={wideMode ? 'primary' : ''} style={{fontSize: '.8rem'}} title="Toggle wide mode">
-                {wideMode ? '⊲ Split View' : '⊳ Wide View'}
+                {wideMode ? '⊲ 분할 보기' : '⊳ 와이드 보기'}
               </button>
               <button onClick={refreshLog} style={{fontSize: '.8rem'}} disabled={loading} title="Refresh log content">
-                🔄 Refresh
+                🔄 새로고침
               </button>
-              <button onClick={clearViewer} style={{fontSize: '.8rem'}} title="Close log viewer">
-                ✕ Close
+              <button onClick={clearViewer} style={{fontSize: '.85rem'}} title="닫기">
+                ✕ 닫기
               </button>
             </>
           )}
@@ -230,8 +230,8 @@ export default function Logs() {
             ) : (
               <div className="log-placeholder">
                 <div style={{fontSize:'2.5rem',marginBottom:'1rem'}}>📋</div>
-                <div style={{fontSize:'1rem',marginBottom:'.5rem',color:'#888'}}>No log file selected</div>
-                <div style={{fontSize:'.8rem',color:'#666'}}>Select a log file from the list to view its contents</div>
+                <div style={{fontSize:'1rem',marginBottom:'.5rem',color:'#888'}}>로그 파일을 선택하세요</div>
+                <div style={{fontSize:'.85rem',color:'#666'}}>왼쪽 목록에서 로그 파일을 선택하면 내용이 표시됩니다</div>
               </div>
             )}
             <div ref={logEndRef} />
