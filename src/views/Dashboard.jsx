@@ -16,12 +16,12 @@ export default function Dashboard() {
 
   return (
     <div style={{overflowY: 'auto', maxHeight: 'calc(100vh - 8rem)', paddingRight: '0.5rem'}}>
-      <div className="flex-between mb1">
-        <h2 style={{margin: 0}}>System Dashboard</h2>
+      <div className="page-header">
+        <h2>System Dashboard</h2>
         <span style={{fontSize: '.8rem', color: 'var(--text2)'}}>Last sync: {new Date().toLocaleTimeString()}</span>
       </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem'}}>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem'}}>
         {/* Local: OCI Management Hub */}
         <section>
           <h3 style={{color: 'var(--accent)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
@@ -83,7 +83,7 @@ export default function Dashboard() {
         </section>
       </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1rem'}}>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '1.5rem'}}>
         <div className="card">
           <h2>Latest Activity</h2>
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>

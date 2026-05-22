@@ -150,14 +150,66 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+/* ===== TABLE STYLES ===== */
 .table-wrap {
   border-radius: 8px;
   border: 1px solid var(--border);
+  width: 100%;
 }
 
-tr:hover td { background: var(--bg3); transition: var(--transition); }
-.active-row td { background: rgba(56, 189, 248, 0.1) !important; border-left: 4px solid var(--accent); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
+thead th {
+  background: var(--bg3);
+  color: var(--text);
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .75rem .85rem;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tbody td {
+  padding: .65rem .85rem;
+  font-size: .85rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(128,128,128,0.03);
+}
+
+tbody tr:hover td {
+  background: var(--bg3);
+}
+
+.active-row td {
+  background: rgba(56, 189, 248, 0.08) !important;
+  border-left: 3px solid var(--accent) !important;
+}
+
+.active-row td:first-child {
+  border-left: 3px solid var(--accent) !important;
+}
+
+/* ===== BUTTONS ===== */
 button {
   transition: var(--transition);
   cursor: pointer;
@@ -170,20 +222,54 @@ button {
 button:hover { opacity: 0.85; transform: translateY(-1px); }
 button:active { transform: translateY(0); }
 
-/* Custom Scrollbar */
+/* ===== STAT CARDS ===== */
+.stats-grid {
+  display: grid;
+  gap: .75rem;
+}
+
+.stat {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.stat.green { border-left: 3px solid var(--green); }
+.stat.red   { border-left: 3px solid var(--red); }
+.stat.blue  { border-left: 3px solid var(--accent); }
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: .25rem;
+}
+
+.stat-label {
+  font-size: .75rem;
+  color: var(--text2);
+}
+
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--bg3); }
 
-/* Badges */
-.badge{padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}
+/* ===== BADGES ===== */
+.badge{padding:.25rem .55rem;border-radius:4px;font-size:.75rem;font-weight:600;letter-spacing:.02em}
 .badge-green{background:rgba(74,222,128,.15);color:var(--green)}
 .badge-red{background:rgba(248,113,113,.15);color:var(--red)}
 .badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
 .badge-blue{background:rgba(56,189,248,.15);color:var(--accent)}
 
-/* Form */
+/* ===== FORM ===== */
 input,select,button{padding:.4rem .6rem;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.85rem}
 input:focus,select:focus{outline:none;border-color:var(--accent)}
 button.primary{background:var(--accent);color:var(--bg);border:none;font-weight:600;cursor:pointer}
@@ -195,7 +281,7 @@ button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
 .mb1{margin-bottom:1rem}
 .gap1{gap:1rem}
 
-/* Login */
+/* ===== LOGIN ===== */
 .login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2.5rem;width:360px;text-align:center}
 .login-box h1{color:var(--accent);margin-bottom:.5rem}
@@ -204,12 +290,41 @@ button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
 .login-box button{margin-top:1rem;width:100%;padding:.6rem}
 .login-error{color:var(--red);font-size:.8rem;margin-top:.5rem}
 
-/* Pagination */
+/* ===== PAGINATION ===== */
 .pagination{display:flex;gap:.25rem;margin-top:1rem}
 .pagination button{padding:.3rem .6rem;min-width:32px}
 .pagination button.active{background:var(--accent);color:var(--bg)}
 .pagination span{color:var(--text2);font-size:.8rem;align-self:center;margin:0 .5rem}
 
-/* Scroll */
-.table-wrap{max-height:60vh;overflow:auto}
+/* ===== SCROLL & LOG ===== */
+.table-wrap{max-height:65vh;overflow:auto}
 pre.log-content{background:var(--bg);padding:1rem;border-radius:6px;font-size:.8rem;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.page-header h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ===== WIDE SCREEN SUPPORT ===== */
+@media (min-width: 1400px) {
+  .main-content {
+    padding: 2.5rem 3rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  .main-content {
+    padding: 3rem 4rem;
+  }
+}

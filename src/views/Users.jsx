@@ -36,18 +36,19 @@ export default function Users() {
 
   return (
     <div>
-      <h2 style={{marginBottom:'1rem'}}>Users</h2>
-      <div className="flex-between mb1">
-        <div className="flex-row">
-          <input placeholder="Search..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
-          <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
-            <option value="">All status</option>
-            <option value="active">Active</option>
-            <option value="blocked">Blocked</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        {data && <span style={{color:'var(--text2)',fontSize:'.85rem'}}>Total: {data.total}</span>}
+      <div className="page-header">
+        <h2>Users</h2>
+        {data && <span style={{color:'var(--text2)',fontSize:'.85rem'}}>Total: {data.total.toLocaleString()}</span>}
+      </div>
+
+      <div className="flex-row gap1 mb1" style={{flexWrap: 'wrap'}}>
+        <input placeholder="Search by name or username..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{minWidth:'220px'}} />
+        <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
+          <option value="">All status</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+          <option value="inactive">Inactive</option>
+        </select>
       </div>
 
       {err && <p style={{color:'var(--red)',marginBottom:'.5rem'}}>{err}</p>}
@@ -60,26 +61,26 @@ export default function Users() {
               <tbody>
                 {data.users.map(u => (
                   <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.first_name} {u.last_name}</td>
-                    <td>@{u.username}</td>
+                    <td style={{fontWeight:500,fontSize:'.8rem',color:'var(--text2)'}}>#{u.id}</td>
+                    <td style={{fontWeight:500}}>{u.first_name} {u.last_name}</td>
+                    <td style={{color:'var(--accent)'}}>@{u.username}</td>
                     <td>{statusBadge(u.status)}</td>
                     <td>
-                      <button className={u.is_admin ? 'danger' : 'primary'} style={{fontSize:'.75rem',padding:'.2rem .4rem'}}
+                      <button className={u.is_admin ? 'danger' : 'primary'} style={{fontSize:'.75rem',padding:'.25rem .5rem'}}
                         onClick={() => toggleAdmin(u.id, !u.is_admin)}>
                         {u.is_admin ? 'Revoke' : 'Grant'}
                       </button>
                     </td>
-                    <td className="flex-row gap1">
-                      <div className="flex-row">
+                    <td>
+                      <div className="flex-row" style={{gap:'.3rem'}}>
                         {['active','blocked','inactive'].map(s => (
                           <button key={s} className={u.status === s ? 'primary' : ''}
-                            style={{fontSize:'.7rem',padding:'.15rem .35rem'}}
+                            style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
                             onClick={() => toggleStatus(u.id, s)} disabled={u.status === s}>{s}</button>
                         ))}
+                        <button className="danger" style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
+                          onClick={() => deleteUser(u.id)}>Delete</button>
                       </div>
-                      <button className="danger" style={{fontSize:'.7rem',padding:'.15rem .35rem'}}
-                        onClick={() => deleteUser(u.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
