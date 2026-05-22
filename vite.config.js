@@ -11,5 +11,11 @@ export default defineConfig({
       '/api': 'http://localhost:8003',
       '/health': 'http://localhost:8003'
     }
-  }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/__tests__/vitest.setup.js',
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
+  },
 });
