@@ -9,6 +9,23 @@
 
 ---
 
+## 🔐 Auth APIs
+
+### 1. Telegram 인증
+- **Method**: `POST`
+- **Path**: `/api/auth/telegram`
+- **Body**: Telegram Login Widget 데이터 (`id`, `first_name`, `username`, `auth_date`, `hash`)
+
+### 2. 비상 로그인 (JWT Secret Key)
+- **Method**: `POST`
+- **Path**: `/api/auth/login`
+- **Body**: `{ "secret": "jwt-secret-key" }`
+- **Response**: `{ "access_token": "...", "user": { ... } }`
+
+### 3. 내 정보 조회
+- **Method**: `GET`
+- **Path**: `/api/auth/me`
+
 ## 🛠 Admin APIs
 
 ### 1. 시스템 메트릭 조회
