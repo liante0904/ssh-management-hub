@@ -18,19 +18,79 @@ const REPOS = [
   { owner: 'liante0904', repo: 'fnguide-report-summary-bot', label: 'FnGuide Summary' },
 ];
 
-function RepoPanel({ owner, repo, label }) {
+// ── Modal ──────────────────────────────────────────
+function MarkdownModal({ file, content, loading, onClose }) {
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 100,
+      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(2px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '1.5rem',
+    }} onClick={onClose}>
+      <div style={{
+        background: 'var(--bg2)', borderRadius: '12px',
+        width: '100%', maxWidth: '900px', height: '90vh',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+      }} onClick={e => e.stopPropagation()}>
+        {/* Modal header */}
+        <div style={{
+          padding: '.85rem 1.25rem', borderBottom: '1px solid var(--border)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: 'var(--bg3)', flexShrink: 0,
+        }}>
+          <div style={{display:'flex',alignItems:'center',gap:'.5rem'}}>
+            <span style={{fontSize:'1.2rem'}}>📄</span>
+            <span style={{fontWeight:600,fontSize:'.95rem'}}>{file?.name}</span>
+            {file && <span style={{fontSize:'.75rem',color:'var(--text2)'}}>{file.path}</span>}
+          </div>
+          <button onClick={onClose} style={{
+            background:'transparent',border:'none',fontSize:'1.3rem',
+            color:'var(--text2)',cursor:'pointer',padding:'.25rem .5rem',
+            borderRadius:'6px',
+          }}>✕</button>
+        </div>
+
+        {/* Modal content */}
+        <div style={{
+          flex: 1, overflow: 'auto', padding: '1.5rem 2rem',
+          fontSize: '.88rem', lineHeight: 1.8,
+        }}>
+          {loading ? (
+            <div style={{textAlign:'center',padding:'3rem',color:'var(--text2)'}}>⏳ 불러오는 중...</div>
+          ) : (
+            <div className="markdown-body">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Repo Row ───────────────────────────────────────
+function RepoRow({ owner, repo, label }) {
   const [mdFiles, setMdFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [activeFile, setActiveFile] = useState(null);
-  const [content, setContent] = useState('');
-  const [contentLoading, setContentLoading] = useState(false);
+  const [modalFile, setModalFile] = useState(null);
+  const [modalContent, setModalContent] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
 
-  // Fetch list of .md files via GitHub API
+  // Fetch .md file list
   useEffect(() => {
     const branches = ['main', 'master'];
-    
-    async function fetchTree() {
+    (async () => {
       for (const branch of branches) {
         try {
           const res = await fetch(
@@ -42,145 +102,127 @@ function RepoPanel({ owner, repo, label }) {
             .filter(f => f.type === 'blob' && f.path.endsWith('.md'))
             .map(f => ({ path: f.path, name: f.path.split('/').pop() }))
             .sort((a, b) => {
-              // README.md first, then alphabetical
               if (a.name === 'README.md') return -1;
               if (b.name === 'README.md') return 1;
               return a.path.localeCompare(b.path);
             });
-          if (files.length > 0) {
-            setMdFiles(files);
-            // Auto-select README
-            const readme = files.find(f => f.name === 'README.md') || files[0];
-            setActiveFile(readme);
-            setLoading(false);
-            return;
-          }
-        } catch {}
-      }
-      setError('마크다운 파일 없음');
-      setLoading(false);
-    }
-
-    fetchTree();
-  }, [owner, repo]);
-
-  // Fetch file content when active file changes
-  useEffect(() => {
-    if (!activeFile) return;
-    setContentLoading(true);
-    const branches = ['main', 'master'];
-    
-    async function fetchContent() {
-      for (const branch of branches) {
-        try {
-          const res = await fetch(
-            `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${activeFile.path}`
-          );
-          if (!res.ok) continue;
-          const text = await res.text();
-          setContent(text);
-          setContentLoading(false);
+          setMdFiles(files);
+          setLoading(false);
           return;
         } catch {}
       }
-      setContent('*파일을 불러올 수 없습니다*');
-      setContentLoading(false);
-    }
+      setLoading(false);
+    })();
+  }, [owner, repo]);
 
-    fetchContent();
-  }, [activeFile, owner, repo]);
+  // Open modal with file content
+  const openFile = async (file) => {
+    setModalFile(file);
+    setModalLoading(true);
+    setModalContent('');
+    const branches = ['main', 'master'];
+    for (const branch of branches) {
+      try {
+        const res = await fetch(
+          `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file.path}`
+        );
+        if (!res.ok) continue;
+        setModalContent(await res.text());
+        setModalLoading(false);
+        return;
+      } catch {}
+    }
+    setModalContent('*파일을 불러올 수 없습니다*');
+    setModalLoading(false);
+  };
 
   return (
-    <div className="card" style={{padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '600px'}}>
-      {/* Header */}
+    <>
       <div style={{
-        padding: '.85rem 1.1rem', borderBottom: '1px solid var(--border)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'var(--bg3)',
-      }}>
-        <div>
-          <h3 style={{fontSize: '.95rem', margin: 0}}>{label}</h3>
+        display: 'flex', alignItems: 'flex-start', gap: '1rem',
+        padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+        transition: 'background 0.15s',
+      }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
+        onMouseLeave={e => e.currentTarget.style.background = ''}
+      >
+        {/* Repo info */}
+        <div style={{minWidth: '180px', maxWidth: '200px'}}>
+          <div style={{fontWeight: 700, fontSize: '.93rem', marginBottom: '.15rem'}}>{label}</div>
           <a href={`https://github.com/${owner}/${repo}`} target="_blank" rel="noopener noreferrer"
-            style={{fontSize: '.7rem', color: 'var(--accent)', textDecoration: 'none'}}>
-            {owner}/{repo} 🔗
+            style={{fontSize: '.73rem', color: 'var(--accent)', textDecoration: 'none'}}>
+            {owner}/{repo}
           </a>
         </div>
-        <span style={{fontSize: '.7rem', color: 'var(--text2)'}}>
-          {loading ? '⏳' : error ? '❌' : `${mdFiles.length}개 파일`}
-        </span>
-      </div>
 
-      {/* File tabs */}
-      {mdFiles.length > 0 && (
-        <div style={{
-          display: 'flex', overflowX: 'auto', borderBottom: '1px solid var(--border)',
-          gap: 0, flexShrink: 0,
-        }}>
-          {mdFiles.map(f => (
-            <button
-              key={f.path}
-              onClick={() => setActiveFile(f)}
-              title={f.path}
-              style={{
-                padding: '.4rem .7rem', fontSize: '.75rem', whiteSpace: 'nowrap',
-                background: activeFile?.path === f.path ? 'var(--bg2)' : 'transparent',
-                border: 'none', borderBottom: activeFile?.path === f.path ? '2px solid var(--accent)' : '2px solid transparent',
-                color: activeFile?.path === f.path ? 'var(--accent)' : 'var(--text2)',
-                cursor: 'pointer', borderRadius: 0, fontWeight: activeFile?.path === f.path ? 600 : 400,
-              }}
-            >
-              {f.name}
-            </button>
-          ))}
+        {/* File tags */}
+        <div style={{flex: 1, display: 'flex', flexWrap: 'wrap', gap: '.35rem', alignItems: 'center'}}>
+          {loading ? (
+            <span style={{fontSize:'.8rem',color:'var(--text2)'}}>⏳</span>
+          ) : mdFiles.length === 0 ? (
+            <span style={{fontSize:'.78rem',color:'var(--text2)'}}>마크다운 파일 없음</span>
+          ) : (
+            mdFiles.map(f => (
+              <button
+                key={f.path}
+                onClick={() => openFile(f)}
+                title={f.path}
+                style={{
+                  padding: '.3rem .6rem', fontSize: '.76rem',
+                  background: 'var(--bg3)', border: '1px solid var(--border)',
+                  borderRadius: '5px', cursor: 'pointer', color: 'var(--text)',
+                  whiteSpace: 'nowrap', fontWeight: 500,
+                }}
+              >
+                📄 {f.name}
+              </button>
+            ))
+          )}
         </div>
-      )}
-
-      {/* Content area */}
-      <div style={{
-        flex: 1, overflow: 'auto', padding: '1rem 1.25rem',
-        fontSize: '.85rem', lineHeight: 1.7,
-        color: 'var(--text)',
-      }}>
-        {loading || contentLoading ? (
-          <div style={{textAlign:'center',padding:'2rem',color:'var(--text2)'}}>⏳ 불러오는 중...</div>
-        ) : error ? (
-          <div style={{textAlign:'center',padding:'2rem',color:'var(--text2)'}}>{error}</div>
-        ) : (
-          <div className="markdown-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content}
-            </ReactMarkdown>
-          </div>
-        )}
       </div>
-    </div>
+
+      {/* Modal */}
+      {modalFile && (
+        <MarkdownModal
+          file={modalFile}
+          content={modalContent}
+          loading={modalLoading}
+          onClose={() => setModalFile(null)}
+        />
+      )}
+    </>
   );
 }
 
+// ── Page ───────────────────────────────────────────
 export default function Progress() {
   return (
     <div style={{overflowY: 'auto', maxHeight: 'calc(100vh - 6rem)', paddingRight: '0.5rem'}}>
       <div className="page-header">
         <h2>진행 현황</h2>
-        <span style={{fontSize: '.85rem', color: 'var(--text2)'}}>
-          {REPOS.length}개 레포지토리
-        </span>
+        <span style={{fontSize: '.85rem', color: 'var(--text2)'}}>{REPOS.length}개 레포지토리</span>
       </div>
 
-      <p style={{fontSize: '.85rem', color: 'var(--text2)', marginBottom: '1.25rem'}}>
-        각 레포지토리의 마크다운(.md) 파일을 GitHub에서 실시간으로 불러옵니다.
-        <br />탭을 클릭해 파일을 전환하고 스크롤로 전체 내용을 확인하세요.
-      </p>
+      <div className="card" style={{padding: 0, overflow: 'hidden'}}>
+        {/* List header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '1rem',
+          padding: '.7rem 1.25rem', background: 'var(--bg3)',
+          borderBottom: '2px solid var(--border)',
+          fontSize: '.78rem', fontWeight: 600, color: 'var(--text2)',
+        }}>
+          <div style={{minWidth: '180px', maxWidth: '200px'}}>레포지토리</div>
+          <div style={{flex: 1}}>마크다운 파일</div>
+        </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
-        gap: '1rem',
-      }}>
         {REPOS.map(r => (
-          <RepoPanel key={r.repo} {...r} />
+          <RepoRow key={r.repo} {...r} />
         ))}
       </div>
+
+      <p style={{fontSize: '.78rem', color: 'var(--text2)', marginTop: '.75rem', textAlign: 'center'}}>
+        파일을 클릭하면 전체 화면으로 마크다운 내용을 볼 수 있습니다 • ESC 키로 닫기
+      </p>
     </div>
   );
 }

@@ -1,41 +1,39 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Progress from '../views/Progress';
 
 describe('Progress Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     global.fetch = vi.fn((url) => {
-      // GitHub tree API
       if (url.includes('api.github.com')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({
             tree: [
               { type: 'blob', path: 'README.md' },
-              { type: 'blob', path: 'docs/PROGRESS.md' },
               { type: 'blob', path: 'CHANGELOG.md' },
-              { type: 'tree', path: 'src' },
             ],
           }),
         });
       }
-      // Raw content
       return Promise.resolve({
         ok: true,
-        text: () => Promise.resolve('# Test\n\n- ✅ Done\n- ⏳ In Progress\n\n```python\nprint("hello")\n```'),
+        text: () => Promise.resolve('# Test Heading\n\nSome content here.'),
       });
     });
   });
 
-  it('renders page title', () => {
+  it('renders page title and count', () => {
     render(<Progress />);
     expect(screen.getByText('진행 현황')).toBeInTheDocument();
+    expect(screen.getByText(/13개/)).toBeInTheDocument();
   });
 
-  it('shows repository count', () => {
+  it('shows list header columns', () => {
     render(<Progress />);
-    expect(screen.getByText(/13개/)).toBeInTheDocument();
+    expect(screen.getByText('레포지토리')).toBeInTheDocument();
+    expect(screen.getByText('마크다운 파일')).toBeInTheDocument();
   });
 
   it('renders repo labels after loading', async () => {
@@ -44,26 +42,29 @@ describe('Progress Page', () => {
     await waitFor(() => {
       expect(screen.getByText('Management Hub API')).toBeInTheDocument();
       expect(screen.getByText('DART Scraper Bot')).toBeInTheDocument();
-      expect(screen.getByText('FnGuide Summary')).toBeInTheDocument();
     }, { timeout: 5000 });
   });
 
-  it('shows markdown file count per repo', async () => {
+  it('shows file buttons per repo', async () => {
     render(<Progress />);
 
     await waitFor(() => {
-      const badges = screen.getAllByText('3개 파일');
-      expect(badges.length).toBeGreaterThan(0);
+      const buttons = screen.getAllByText('📄 README.md');
+      expect(buttons.length).toBeGreaterThan(0);
     }, { timeout: 5000 });
   });
 
-  it('renders markdown content with react-markdown', async () => {
+  it('clicking a file opens modal', async () => {
     render(<Progress />);
 
     await waitFor(() => {
-      // Check that markdown heading is rendered (multiple repos will have same mock)
-      const headings = screen.getAllByText('Test');
-      expect(headings.length).toBeGreaterThan(0);
-    }, { timeout: 8000 });
+      expect(screen.getAllByText('📄 README.md').length).toBeGreaterThan(0);
+    }, { timeout: 5000 });
+
+    fireEvent.click(screen.getAllByText('📄 README.md')[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Heading')).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 });
