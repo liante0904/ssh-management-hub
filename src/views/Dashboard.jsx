@@ -55,7 +55,36 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Menu Grid */}
+      {/* OCI2 Production Status */}
+      {metrics && (
+        <div style={{marginBottom: '1.5rem'}}>
+          <h3 style={{fontSize: '1rem', marginBottom: '1rem', color: 'var(--text2)'}}>프로덕션 서버 (oci2)</h3>
+          {metrics.oci2 ? (
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.75rem'
+            }}>
+              <div className={`stat ${metrics.oci2.cpu_percent > 80 ? 'red' : 'green'}`}>
+                <div className="stat-value">{metrics.oci2.cpu_percent}%</div>
+                <div className="stat-label">CPU</div>
+              </div>
+              <div className={`stat ${metrics.oci2.percent > 80 ? 'red' : 'green'}`}>
+                <div className="stat-value">{metrics.oci2.used_gb}GB</div>
+                <div className="stat-label">RAM / {metrics.oci2.total_gb}GB</div>
+              </div>
+              <div className={`stat ${metrics.oci2.disk_percent > 80 ? 'red' : 'green'}`}>
+                <div className="stat-value">{metrics.oci2.disk_used_gb}GB</div>
+                <div className="stat-label">Disk / {metrics.oci2.disk_total_gb}GB</div>
+              </div>
+            </div>
+          ) : (
+            <div className="card" style={{textAlign:'center', padding:'1rem', color:'var(--red)', fontSize:'.9rem'}}>
+              ⚠️ 프로덕션 서버 연결 실패 — 백엔드 서버의 SSH 설정을 확인하세요
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Menu Grid — 하단 배치 */}
       <h3 style={{fontSize: '1rem', marginBottom: '1rem', color: 'var(--text2)'}}>빠른 메뉴</h3>
       <div style={{
         display: 'grid',
@@ -108,35 +137,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* OCI2 Production Status */}
-      {metrics && (
-        <div style={{marginTop: '1.5rem'}}>
-          <h3 style={{fontSize: '1rem', marginBottom: '1rem', color: 'var(--text2)'}}>프로덕션 서버 (oci2)</h3>
-          {metrics.oci2 ? (
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.75rem'
-            }}>
-              <div className={`stat ${metrics.oci2.cpu_percent > 80 ? 'red' : 'green'}`}>
-                <div className="stat-value">{metrics.oci2.cpu_percent}%</div>
-                <div className="stat-label">CPU</div>
-              </div>
-              <div className={`stat ${metrics.oci2.percent > 80 ? 'red' : 'green'}`}>
-                <div className="stat-value">{metrics.oci2.used_gb}GB</div>
-                <div className="stat-label">RAM / {metrics.oci2.total_gb}GB</div>
-              </div>
-              <div className={`stat ${metrics.oci2.disk_percent > 80 ? 'red' : 'green'}`}>
-                <div className="stat-value">{metrics.oci2.disk_used_gb}GB</div>
-                <div className="stat-label">Disk / {metrics.oci2.disk_total_gb}GB</div>
-              </div>
-            </div>
-          ) : (
-            <div className="card" style={{textAlign:'center', padding:'1rem', color:'var(--red)', fontSize:'.9rem'}}>
-              ⚠️ 프로덕션 서버 연결 실패 — 백엔드 서버의 SSH 설정을 확인하세요
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
