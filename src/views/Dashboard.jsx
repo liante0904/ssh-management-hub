@@ -10,9 +10,16 @@ export default function Dashboard() {
   }, []);
 
   if (err) return <div className="card"><p style={{color:'var(--red)'}}>{err}</p></div>;
-  if (!metrics) return <div className="card"><p>Loading...</p></div>;
+  if (!metrics) return (
+    <div className="card" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'300px'}}>
+      <div style={{textAlign:'center',color:'var(--text2)'}}>
+        <div style={{fontSize:'2rem',marginBottom:'.5rem'}}>⏳</div>
+        <p>Loading system metrics...</p>
+      </div>
+    </div>
+  );
 
-  const { cpu, memory, disk, database, reports, last_activity, system, oci2 } = metrics;
+  const { cpu, memory, disk, database, reports, last_activity, oci2 } = metrics;
 
   return (
     <div style={{overflowY: 'auto', maxHeight: 'calc(100vh - 8rem)', paddingRight: '0.5rem'}}>
@@ -21,11 +28,11 @@ export default function Dashboard() {
         <span style={{fontSize: '.8rem', color: 'var(--text2)'}}>Last sync: {new Date().toLocaleTimeString()}</span>
       </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem'}}>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1.25rem'}}>
         {/* Local: OCI Management Hub */}
-        <section>
-          <h3 style={{color: 'var(--accent)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-            <span>🏠</span> Management Hub (OCI Local)
+        <section className="card" style={{padding: '1.25rem'}}>
+          <h3 style={{color: 'var(--accent)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem'}}>
+            <span>🏠</span> Management Hub (OCI)
           </h3>
           <div className="stats-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)'}}>
             <div className={`stat ${cpu.percent > 80 ? 'red' : 'green'}`}>
@@ -48,8 +55,8 @@ export default function Dashboard() {
         </section>
 
         {/* Remote: Production Server (oci2) */}
-        <section>
-          <h3 style={{color: 'var(--accent2)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+        <section className="card" style={{padding: '1.25rem'}}>
+          <h3 style={{color: 'var(--accent2)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem'}}>
             <span>🚀</span> Production Server (oci2)
           </h3>
           {oci2 ? (
@@ -72,20 +79,19 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="card" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '215px', border: '1px dashed var(--red)', backgroundColor: 'rgba(248, 113, 113, 0.05)'}}>
-              <div style={{textAlign: 'center'}}>
-                <p style={{fontSize: '2rem', marginBottom: '0.5rem'}}>⚠️</p>
-                <p style={{fontWeight: 'bold', color: 'var(--red)'}}>Connection Failed</p>
-                <p style={{fontSize: '.8rem', color: 'var(--text2)', marginTop: '0.5rem'}}>Check SSH config for 'oci2'</p>
-              </div>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '170px', border: '1px dashed var(--red)', borderRadius: '8px', backgroundColor: 'rgba(248, 113, 113, 0.04)', padding: '1.5rem', textAlign: 'center'}}>
+              <p style={{fontSize: '2rem', marginBottom: '0.5rem'}}>⚠️</p>
+              <p style={{fontWeight: 'bold', color: 'var(--red)', marginBottom: '0.25rem'}}>Connection Failed</p>
+              <p style={{fontSize: '.8rem', color: 'var(--text2)'}}>Backend server cannot reach 'oci2' via SSH</p>
+              <p style={{fontSize: '.75rem', color: 'var(--text2)', marginTop: '0.25rem'}}>Check <code style={{background:'var(--bg3)',padding:'2px 6px',borderRadius:'4px'}}>~/.ssh/config</code> on the backend server</p>
             </div>
           )}
         </section>
       </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '1.5rem'}}>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginTop: '1.25rem'}}>
         <div className="card">
-          <h2>Latest Activity</h2>
+          <h3 style={{fontSize: '1rem', marginBottom: '1rem'}}>Latest Activity</h3>
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
             <div className="flex-between">
               <span className="badge badge-blue">{last_activity.last_firm || '-'}</span>
@@ -96,7 +102,7 @@ export default function Dashboard() {
         </div>
 
         <div className="card">
-          <h2>Report Statistics</h2>
+          <h3 style={{fontSize: '1rem', marginBottom: '1rem'}}>Report Statistics</h3>
           <div className="flex-row gap1">
             <div style={{flex: 1, textAlign: 'center', padding: '1rem', background: 'var(--bg3)', borderRadius: '8px'}}>
               <div style={{fontSize: '1.5rem', fontWeight: 700}}>{reports.total.toLocaleString()}</div>

@@ -246,19 +246,6 @@ tbody tr:hover td {
   border-left: 3px solid var(--accent) !important;
 }
 
-/* ===== BUTTONS ===== */
-button {
-  transition: var(--transition);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-button:hover { opacity: 0.85; transform: translateY(-1px); }
-button:active { transform: translateY(0); }
-
 /* ===== STAT CARDS ===== */
 .stats-grid {
   display: grid;
@@ -292,6 +279,19 @@ button:active { transform: translateY(0); }
   font-size: .75rem;
   color: var(--text2);
 }
+
+/* ===== BUTTONS ===== */
+button {
+  transition: var(--transition);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+button:hover { opacity: 0.85; transform: translateY(-1px); }
+button:active { transform: translateY(0); }
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -333,7 +333,7 @@ button.danger{background:var(--red);color:#fff;border:none;cursor:pointer}
 .pagination button.active{background:var(--accent);color:var(--bg)}
 .pagination span{color:var(--text2);font-size:.8rem;align-self:center;margin:0 .5rem}
 
-/* ===== SCROLL & LOG ===== */
+/* ===== SCROLL ===== */
 .table-wrap{max-height:65vh;overflow:auto}
 pre.log-content{background:var(--bg);padding:1rem;border-radius:6px;font-size:.8rem;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all}
 
