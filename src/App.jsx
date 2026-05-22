@@ -25,6 +25,9 @@ export default function App() {
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('mh_sidebar_collapsed') === 'true';
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -37,6 +40,14 @@ export default function App() {
 
   const toggleSidebar = () => {
     setSidebarOpen(prev => !prev);
+  };
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('mh_sidebar_collapsed', String(next));
+      return next;
+    });
   };
 
   const closeSidebar = () => {
@@ -66,23 +77,33 @@ export default function App() {
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar} />}
 
-      <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="sidebar-brand">SSH Management Hub</div>
+      <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className="sidebar-brand">
+          {!sidebarCollapsed && 'SSH Management Hub'}
+          <button className="sidebar-collapse-btn" onClick={toggleSidebarCollapse} aria-label="Toggle sidebar" title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            {sidebarCollapsed ? '▶' : '◀'}
+          </button>
+        </div>
         <nav>
           {nav.map(n => (
             <NavLink key={n.path} to={n.path} end={n.path === '/'}
               className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-              onClick={closeSidebar}>
-              <span className="nav-icon">{n.icon}</span> {n.label}
+              onClick={closeSidebar}
+              title={sidebarCollapsed ? n.label : undefined}>
+              <span className="nav-icon">{n.icon}</span>
+              <span className="nav-label">{n.label}</span>
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar-footer" style={{marginTop: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-          <button className="nav-item" onClick={toggleTheme} style={{width: '100%', justifyContent: 'flex-start', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', borderRadius: '6px'}}>
+        <div className="sidebar-footer">
+          <button className="nav-item sidebar-theme-btn" onClick={toggleTheme} title={sidebarCollapsed ? (theme === 'light' ? 'Dark Mode' : 'Light Mode') : undefined}>
             <span className="nav-icon">{theme === 'light' ? '🌙' : '☀️'}</span>
-            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+            <span className="nav-label">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
           </button>
-          <button className="btn-logout" onClick={logout} style={{margin: 0}}>Logout</button>
+          <button className="btn-logout" onClick={logout}>
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Logout</span>
+          </button>
         </div>
       </aside>
       <main className="main-content">
