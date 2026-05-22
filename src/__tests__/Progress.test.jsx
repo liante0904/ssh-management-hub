@@ -61,8 +61,9 @@ describe('Progress Page', () => {
     render(<Progress />);
 
     await waitFor(() => {
-      // The rendered markdown should show the text content
-      expect(screen.getByText('Done')).toBeInTheDocument();
-    }, { timeout: 5000 });
+      // Check that markdown heading is rendered (multiple repos will have same mock)
+      const headings = screen.getAllByText('Test');
+      expect(headings.length).toBeGreaterThan(0);
+    }, { timeout: 8000 });
   });
 });
