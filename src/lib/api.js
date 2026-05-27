@@ -57,7 +57,16 @@ export const api = {
 
   // DB Viewer
   dbTables: () => req('GET', '/admin/db/tables'),
-  dbQuery: (table, limit = 50) => req('GET', `/admin/db/query/${encodeURIComponent(table)}?limit=${limit}`),
+  dbQuery: (table, opts = {}) => {
+    const { limit = 50, offset = 0, order_by, order_dir } = opts;
+    const p = new URLSearchParams({ limit, offset });
+    if (order_by) p.set('order_by', order_by);
+    if (order_dir) p.set('order_dir', order_dir);
+    return req('GET', `/admin/db/query/${encodeURIComponent(table)}?${p}`);
+  },
+  dbComment: (tableName, comment, columnName) =>
+    req('PUT', '/admin/db/comment', { table_name: tableName, comment, column_name: columnName || null }),
+  dbSqlQuery: (query, limit = 50) => req('POST', '/admin/db/query', { query, limit }),
 
   // Reports
   reports: (page = 1, filters = {}) => {
@@ -82,6 +91,23 @@ export const api = {
     if (userId) p.set('user_id', userId);
     return req('GET', `/api/reports/send-history?${p}`);
   },
+
+  // PDF Archive
+  pdfArchive: (page = 1, filters = {}) => {
+    const p = new URLSearchParams({ page, page_size: 20 });
+    if (filters.firm_nm) p.set('firm_nm', filters.firm_nm);
+    if (filters.archive_status) p.set('archive_status', filters.archive_status);
+    if (filters.reg_dt) p.set('reg_dt', filters.reg_dt);
+    if (filters.sync_status !== undefined && filters.sync_status !== '') p.set('sync_status', filters.sync_status);
+    if (filters.pdf_sync_status !== undefined && filters.pdf_sync_status !== '') p.set('pdf_sync_status', filters.pdf_sync_status);
+    if (filters.download_status_yn) p.set('download_status_yn', filters.download_status_yn);
+    if (filters.search) p.set('search', filters.search);
+    if (filters.sort) p.set('sort', filters.sort);
+    return req('GET', `/api/reports/pdf-archive?${p}`);
+  },
+  pdfArchiveStatsDaily: (days = 30) => req('GET', `/api/reports/pdf-archive/stats/daily?days=${days}`),
+  pdfArchiveStatsByFirm: () => req('GET', `/api/reports/pdf-archive/stats/by-firm`),
+  pdfArchiveReprocess: (body) => req('POST', '/api/reports/pdf-archive/reprocess', body),
 
   // Firms
   firms: (search) => {
