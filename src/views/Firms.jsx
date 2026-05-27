@@ -1,64 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
+import { useToast } from '../components/ui/ToastContext';
 
 export default function Firms() {
   const [firms, setFirms] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedFirm, setSelectedFirm] = useState(null);
   const [boards, setBoards] = useState([]);
-  const [err, setErr] = useState('');
+  const { toast, confirm, prompt } = useToast();
 
-  const load = () => {
-    setErr('');
-    api.firms(search || undefined).then(setFirms).catch(e => setErr(e.message));
-  };
+  const load = useCallback(() => {
+    api.firms(search || undefined)
+      .then(setFirms)
+      .catch(e => toast.error(e.message));
+  }, [search, toast]);
 
-  useEffect(load, [search]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const selectFirm = (firm) => {
     setSelectedFirm(firm);
-    api.firmBoards(firm.sec_firm_order).then(setBoards).catch(e => setErr(e.message));
+    api.firmBoards(firm.sec_firm_order)
+      .then(setBoards)
+      .catch(e => toast.error(e.message));
   };
 
-  const editFirm = (firm) => {
-    const newName = window.prompt('새 증권사 이름을 입력하세요:', firm.firm_nm);
+  const editFirm = async (firm) => {
+    const newName = await prompt('새 증권사 이름을 입력하세요:', firm.firm_nm);
     if (!newName || newName === firm.firm_nm) return;
     api.updateFirm(firm.sec_firm_order, { firm_nm: newName })
       .then(() => {
+        toast.success('증권사 이름이 변경되었습니다.');
         load();
         if (selectedFirm?.sec_firm_order === firm.sec_firm_order) {
           setSelectedFirm({ ...selectedFirm, firm_nm: newName });
         }
       })
-      .catch(e => setErr(e.message));
+      .catch(e => toast.error(e.message));
   };
 
-  const addBoard = () => {
-    const name = window.prompt('게시판 이름:');
+  const addBoard = async () => {
+    const name = await prompt('게시판 이름:');
     if (!name) return;
-    const cd = window.prompt('게시판 코드:');
-    const label = window.prompt('라벨 이름:');
+    const cd = await prompt('게시판 코드:');
+    if (!cd) return;
+    const label = await prompt('라벨 이름:');
+    if (!label) return;
     
     api.createFirmBoard(selectedFirm.sec_firm_order, {
       board_nm: name,
       board_cd: cd,
       label_nm: label,
       article_board_order: boards.length + 1
-    }).then(() => selectFirm(selectedFirm)).catch(e => setErr(e.message));
+    })
+      .then(() => {
+        toast.success('게시판이 추가되었습니다.');
+        selectFirm(selectedFirm);
+      })
+      .catch(e => toast.error(e.message));
   };
 
-  const editBoard = (board) => {
-    const newName = window.prompt('새 게시판 이름을 입력하세요:', board.board_nm);
+  const editBoard = async (board) => {
+    const newName = await prompt('새 게시판 이름을 입력하세요:', board.board_nm);
     if (!newName || newName === board.board_nm) return;
     api.updateFirmBoard(selectedFirm.sec_firm_order, board.article_board_order, { board_nm: newName })
-      .then(() => selectFirm(selectedFirm))
-      .catch(e => setErr(e.message));
+      .then(() => {
+        toast.success('게시판 이름이 변경되었습니다.');
+        selectFirm(selectedFirm);
+      })
+      .catch(e => toast.error(e.message));
   };
 
-  const deleteBoard = (boardOrder) => {
-    if (!window.confirm('이 게시판을 삭제하시겠습니까?')) return;
+  const deleteBoard = async (boardOrder) => {
+    const ok = await confirm('이 게시판을 삭제하시겠습니까?', '게시판 삭제');
+    if (!ok) return;
     api.deleteFirmBoard(selectedFirm.sec_firm_order, boardOrder)
-      .then(() => selectFirm(selectedFirm)).catch(e => setErr(e.message));
+      .then(() => {
+        toast.success('게시판이 삭제되었습니다.');
+        selectFirm(selectedFirm);
+      })
+      .catch(e => toast.error(e.message));
   };
 
   return (
@@ -75,7 +97,19 @@ export default function Firms() {
         </div>
       </div>
 
-      {err && <div className="card" style={{borderLeft: '4px solid var(--red)', padding: '0.75rem 1rem', color: 'var(--red)'}}>{err}</div>}
+      {/* Telegram ON/OFF 설명 */}
+      <div className="card" style={{
+        padding: '.75rem 1rem',
+        borderLeft: '4px solid var(--accent)',
+        fontSize: '.82rem',
+        lineHeight: 1.6,
+        color: 'var(--text2)',
+      }}>
+        <strong style={{color: 'var(--text)'}}>📡 텔레그램 ON/OFF 안내</strong><br/>
+        <strong>ON (초록색)</strong>: 해당 증권사의 새 리포트가 수집되면 <strong>텔레그램 봇을 통해 구독자에게 자동 전송</strong>됩니다.<br/>
+        <strong>OFF (노란색)</strong>: 텔레그램 자동 전송이 <strong>비활성화</strong>된 상태입니다. 리포트는 수집되지만 구독자에게 전송되지 않습니다.<br/>
+        <span style={{fontSize: '.75rem'}}>※ 텔레그램 ON/OFF 전환은 백엔드 API를 통해 변경 가능합니다. (추후 UI 토글 지원 예정)</span>
+      </div>
 
       <div className="firms-container" style={{display:'flex', flexWrap: 'wrap', gap:'1.25rem', alignItems: 'flex-start'}}>
         {/* Left: Firms List */}
@@ -94,7 +128,17 @@ export default function Firms() {
                     style={{cursor:'pointer'}}>
                     <td>{f.sec_firm_order}</td>
                     <td style={{fontWeight: 500}}>{f.firm_nm}</td>
-                    <td><span className={`badge ${f.telegram_update_yn === 'Y' ? 'badge-green' : 'badge-yellow'}`}>{f.telegram_update_yn === 'Y' ? 'ON' : 'OFF'}</span></td>
+                    <td>
+                      <span
+                        className={`badge ${f.telegram_update_yn === 'Y' ? 'badge-green' : 'badge-yellow'}`}
+                        title={f.telegram_update_yn === 'Y'
+                          ? '텔레그램 자동 전송 ON - 구독자에게 새 리포트 전송됨'
+                          : '텔레그램 자동 전송 OFF - 구독자에게 전송되지 않음'}
+                        style={{cursor: 'help'}}
+                      >
+                        {f.telegram_update_yn === 'Y' ? 'ON' : 'OFF'}
+                      </span>
+                    </td>
                     <td>
                       <button onClick={(e) => { e.stopPropagation(); editFirm(f); }} style={{fontSize:'.75rem', padding:'.3rem .6rem'}}>수정</button>
                     </td>

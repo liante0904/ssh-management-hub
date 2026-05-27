@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Users from '../views/Users';
+import { ToastProvider } from '../components/ui/ToastContext';
 
 vi.mock('../lib/api', () => ({
   api: {
@@ -15,7 +16,11 @@ vi.mock('../lib/api', () => ({
 import { api } from '../lib/api';
 
 function renderWithRouter(ui) {
-  return render(<MemoryRouter>{ui}</MemoryRouter>);
+  return render(
+    <MemoryRouter>
+      <ToastProvider>{ui}</ToastProvider>
+    </MemoryRouter>
+  );
 }
 
 describe('Users Page', () => {
