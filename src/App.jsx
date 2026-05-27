@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { ToastProvider } from './components/ui/ToastContext';
+import ToastContainer from './components/ui/Toast';
+import ConfirmDialog from './components/ui/ConfirmDialog';
 import LoginScreen from './components/auth/LoginScreen';
 import Dashboard from './views/Dashboard';
 import Users from './views/Users';
 import Reports from './views/Reports';
+import PdfArchive from './views/PdfArchive';
 import Firms from './views/Firms';
 import Database from './views/Database';
 import Logs from './views/Logs';
@@ -14,6 +18,7 @@ const nav = [
   { path: '/', label: '대시보드', icon: '📊' },
   { path: '/users', label: '사용자 관리', icon: '👥' },
   { path: '/reports', label: '리포트 관리', icon: '📄' },
+  { path: '/pdf-archive', label: 'PDF 관리', icon: '📑' },
   { path: '/firms', label: '증권사 관리', icon: '🏢' },
   { path: '/database', label: 'DB 뷰어', icon: '🗄️' },
   { path: '/logs', label: '로그 뷰어', icon: '📋' },
@@ -68,9 +73,12 @@ export default function App() {
   }
 
   return (
-    <div className="app-layout">
-      {/* Mobile header with hamburger */}
-      <div className="mobile-header">
+    <ToastProvider>
+      <div className="app-layout">
+        <ToastContainer />
+        <ConfirmDialog />
+        {/* Mobile header with hamburger */}
+        <div className="mobile-header">
         <button className="hamburger" onClick={toggleSidebar} aria-label="Toggle navigation">
           ☰
         </button>
@@ -116,6 +124,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/pdf-archive" element={<PdfArchive />} />
           <Route path="/firms" element={<Firms />} />
           <Route path="/database" element={<Database />} />
           <Route path="/logs" element={<Logs />} />
@@ -124,5 +133,6 @@ export default function App() {
         </Routes>
       </main>
     </div>
+    </ToastProvider>
   );
 }

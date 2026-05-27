@@ -1,6 +1,6 @@
 # SSH Management Hub (Frontend)
 
-관리자 대시보드 — 사용자 관리, 리포트 동기화, DB 조회, 로그 뷰어, 진행 현황
+관리자 대시보드 — 사용자 관리, 리포트 관리, PDF 아카이브, DB 조회/SQL 쿼리, 로그 뷰어, 진행 현황
 
 ## 기술 스택
 
@@ -13,12 +13,13 @@
 
 | 경로 | 페이지 | 설명 |
 |------|--------|------|
-| `/` | 대시보드 | 시스템 메트릭, 프로덕션(oci2) 상태, 빠른 메뉴 |
+| `/` | 대시보드 | OCI(배포)/OCI2(프로덕션) 서버 상태, 빠른 메뉴, 시스템/리포트 통계 |
 | `/users` | 사용자 관리 | Telegram 사용자 목록, 상태/권한 관리 |
 | `/reports` | 리포트 관리 | 증권사 리포트 동기화 상태, PDF 재처리 |
+| `/pdf-archive` | PDF 관리 | PDF 아카이브 현황/통계/재처리 (tbl_sec_reports_pdf_archive) |
 | `/firms` | 증권사 관리 | 증권사 및 게시판 설정 |
-| `/database` | DB 뷰어 | PostgreSQL 테이블 조회 |
-| `/logs` | 로그 뷰어 | 서버 로그 파일 탐색, ANSI 컬러 렌더링 |
+| `/database` | DB 뷰어 | PostgreSQL 테이블 조회 + 커스텀 SQL 쿼리 (Ctrl+Enter) |
+| `/logs` | 로그 뷰어 | 서버 로그 파일 탐색, ANSI 컬러 렌더링, IDE 스타일 분할 패널 |
 | `/progress` | 진행 현황 | 13개 연동 레포지토리 마크다운 파일 뷰어 |
 
 ## 개발
@@ -27,7 +28,7 @@
 npm install
 npm run dev        # localhost:5175
 npm run build      # 프로덕션 빌드
-npm test           # vitest (20개 테스트)
+npm test           # vitest (38개 테스트)
 ```
 
 ## 인증
