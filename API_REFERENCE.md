@@ -49,12 +49,22 @@
 ### 4. DB 테이블 목록 조회
 - **Method**: `GET`
 - **Path**: `/admin/db/tables`
-- **Description**: 데이터베이스의 모든 테이블 목록을 조회합니다.
+- **Description**: 데이터베이스의 모든 테이블 목록과 코멘트를 조회합니다.
 
 ### 5. DB 테이블 데이터 쿼리
 - **Method**: `GET`
-- **Path**: `/admin/db/query/{table}?limit={limit}`
-- **Description**: 특정 테이블의 데이터를 조회합니다.
+- **Path**: `/admin/db/query/{table}?limit={limit}&offset={offset}&order_by={col}&order_dir={dir}`
+- **Description**: 특정 테이블의 데이터를 조회하며, 정렬 및 페이징을 지원합니다.
+
+### 6. DB 코멘트 업데이트
+- **Method**: `PUT`
+- **Path**: `/admin/db/comment`
+- **Body**: `{ "table_name": string, "comment": string, "column_name": string | null }`
+
+### 7. 커스텀 SQL 실행
+- **Method**: `POST`
+- **Path**: `/admin/db/query`
+- **Body**: `{ "query": string, "limit": number }`
 
 ---
 
@@ -103,6 +113,23 @@
 ### 5. 전송 이력 조회
 - **Method**: `GET`
 - **Path**: `/api/reports/send-history?report_id={reportId}&user_id={userId}`
+
+### 6. PDF 아카이브 목록 조회
+- **Method**: `GET`
+- **Path**: `/api/reports/pdf-archive?page={page}&firm_nm={firm}&archive_status={status}&reg_dt={dt}&sync_status={sync}&search={search}&sort={sort}`
+
+### 7. PDF 아카이브 통계 (일별)
+- **Method**: `GET`
+- **Path**: `/api/reports/pdf-archive/stats/daily?days={days}`
+
+### 8. PDF 아카이브 통계 (증권사별)
+- **Method**: `GET`
+- **Path**: `/api/reports/pdf-archive/stats/by-firm`
+
+### 9. PDF 아카이브 재처리
+- **Method**: `POST`
+- **Path**: `/api/reports/pdf-archive/reprocess`
+- **Body**: `{ "report_ids": number[], "archive_status": string, "sync_status": number, "firm_nm": string, "limit": number }`
 
 ---
 
