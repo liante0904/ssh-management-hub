@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { useToast } from '../components/ui/ToastContext';
 
-const STATUS_LABELS = { 0: 'Pending', 1: 'Processing', 2: 'Done', 9: 'Failed', '-1': 'Failed' };
-const STATUS_CLASS = { 0: 'badge-yellow', 1: 'badge-blue', 2: 'badge-green', 9: 'badge-red', '-1': 'badge-red' };
+const STATUS_LABELS = { 0: 'Pending', 2: 'Done', 3: 'Failed', 9: 'Failed', '-1': 'Failed' };
+const STATUS_CLASS = { 0: 'badge-yellow', 2: 'badge-green', 3: 'badge-red', 9: 'badge-red', '-1': 'badge-red' };
 
 const ARCHIVE_STATUS_OPTIONS = [
   { value: '', label: '전체 아카이브' },
@@ -51,7 +51,7 @@ export default function PdfArchive() {
   // 빠른 실행: 최근일자 기준 100건 재처리
   const quickReprocessRecent100 = async () => {
     const ok = await confirm(
-      '최근 등록된 100건의 PDF 아카이브 항목을 재처리하시겠습니까?\n\nsync_status를 0(대기)으로 초기화하여 PDF 다운로드/처리를 다시 트리거합니다.',
+      '최근 등록된 100건의 PDF 아카이브 항목을 재처리하시겠습니까?\n\npdf_sync_status를 0(대기)으로 초기화하여 PDF 다운로드/처리를 다시 트리거합니다.',
       '최근 100건 재처리'
     );
     if (!ok) return;
@@ -89,7 +89,7 @@ export default function PdfArchive() {
   };
 
   const bulkReprocess = async () => {
-    if (!reprocessForm.archive_status && !reprocessForm.sync_status && !reprocessForm.firm_nm) {
+    if (!reprocessForm.archive_status && !reprocessForm.pdf_sync_status && !reprocessForm.firm_nm) {
       toast.warning('최소 하나의 필터 조건이 필요합니다');
       return;
     }
@@ -105,7 +105,7 @@ export default function PdfArchive() {
       const res = await api.pdfArchiveReprocess({
         archive_status: reprocessForm.archive_status || undefined,
         firm_nm: reprocessForm.firm_nm || undefined,
-        sync_status: reprocessForm.sync_status !== '' ? Number(reprocessForm.sync_status) : undefined,
+        pdf_sync_status: reprocessForm.pdf_sync_status !== '' ? Number(reprocessForm.pdf_sync_status) : undefined,
         limit: reprocessForm.limit,
       });
       toast.success(res.message || '재처리 완료');
@@ -202,7 +202,7 @@ export default function PdfArchive() {
         <div className="card mb1" style={{padding: '1rem'}}>
           <h4 style={{marginBottom: '.75rem'}}>PDF 일괄 재처리</h4>
           <p style={{fontSize: '.8rem', color: 'var(--text2)', marginBottom: '.75rem'}}>
-            필터 조건에 맞는 건들의 sync_status를 0(대기)으로 초기화하여 PDF 다운로드/처리를 다시 트리거합니다.
+            필터 조건에 맞는 건들의 pdf_sync_status를 0(대기)으로 초기화하여 PDF 다운로드/처리를 다시 트리거합니다.
           </p>
           <div className="flex-row gap1" style={{flexWrap: 'wrap', alignItems: 'flex-end'}}>
             <div>
@@ -215,9 +215,9 @@ export default function PdfArchive() {
               </select>
             </div>
             <div>
-              <label style={{fontSize:'.75rem',display:'block',marginBottom:'.25rem'}}>Sync 상태</label>
-              <select value={reprocessForm.sync_status}
-                onChange={e => setReprocessForm(f => ({ ...f, sync_status: e.target.value }))}>
+              <label style={{fontSize:'.75rem',display:'block',marginBottom:'.25rem'}}>PDF Sync</label>
+              <select value={reprocessForm.pdf_sync_status}
+                onChange={e => setReprocessForm(f => ({ ...f, pdf_sync_status: e.target.value }))}>
                 <option value="">전체</option>
                 <option value="0">대기</option>
                 <option value="9">실패</option>
@@ -329,13 +329,13 @@ export default function PdfArchive() {
         </select>
         <input placeholder="날짜 YYYYMMDD..." value={filters.reg_dt || ''}
           onChange={e => updateFilter('reg_dt', e.target.value)} style={{width: '150px'}} />
-        <select value={filters.sync_status ?? ''}
-          onChange={e => updateFilter('sync_status', e.target.value ? Number(e.target.value) : undefined)}>
-          <option value="">전체 Sync</option>
+        <select value={filters.pdf_sync_status ?? ''}
+          onChange={e => updateFilter('pdf_sync_status', e.target.value ? Number(e.target.value) : undefined)}>
+          <option value="">전체 PDF Sync</option>
           <option value="0">대기</option>
-          <option value="1">처리중</option>
           <option value="2">완료</option>
-          <option value="9">실패</option>
+          <option value="3">실패(3)</option>
+          <option value="9">실패(9)</option>
         </select>
         <select value={filters.download_status_yn || ''}
           onChange={e => updateFilter('download_status_yn', e.target.value || undefined)}>
@@ -367,7 +367,7 @@ export default function PdfArchive() {
                   <th>페이지</th>
                   <th>아카이브</th>
                   <th>저장소</th>
-                  <th>Sync</th>
+                  <th>PDF Sync</th>
                   <th>재시도</th>
                   <th>텍스트</th>
                   <th style={{minWidth: '100px'}}>작업</th>
@@ -375,7 +375,7 @@ export default function PdfArchive() {
               </thead>
               <tbody>
                 {data.items.map(r => (
-                  <tr key={r.report_id} className={r.archive_status !== 'ARCHIVED' && r.sync_status === 9 ? 'row-warning' : ''}>
+                  <tr key={r.report_id} className={r.archive_status !== 'ARCHIVED' && (r.pdf_sync_status === 9 || r.pdf_sync_status === 3) ? 'row-warning' : ''}>
                     <td style={{fontWeight:500,fontSize:'.8rem',color:'var(--text2)'}}>#{r.report_id}</td>
                     <td style={{fontWeight:500}}>{r.firm_nm || '-'}</td>
                     <td style={{maxWidth:'300px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}
@@ -395,7 +395,7 @@ export default function PdfArchive() {
                       </span>
                     </td>
                     <td style={{fontSize:'.75rem'}}>{r.storage_backend || '-'}</td>
-                    <td><span className={`badge ${STATUS_CLASS[r.sync_status] || 'badge-yellow'}`}>{STATUS_LABELS[r.sync_status] || r.sync_status}</span></td>
+                    <td><span className={`badge ${STATUS_CLASS[r.pdf_sync_status] || 'badge-yellow'}`}>{STATUS_LABELS[r.pdf_sync_status] || r.pdf_sync_status}</span></td>
                     <td style={{textAlign:'center'}}>
                       {(r.retry_count || 0) > 0 ? (
                         <span className="badge badge-yellow">{r.retry_count}</span>
