@@ -5,18 +5,22 @@ import Progress from '../views/Progress';
 describe('Progress Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock raw.githubusercontent.com HEAD + GET
+    // Mock api.github.com GET requests
     global.fetch = vi.fn((url, opts) => {
-      if (opts?.method === 'HEAD') {
-        // README.md exists, PROGRESS.md exists, others 404
-        const ok = url.includes('README.md') || url.includes('PROGRESS.md');
-        return Promise.resolve({ ok });
+      const isGithubApi = url.includes('api.github.com/repos/');
+      if (!isGithubApi) return Promise.resolve({ ok: false });
+
+      const hasRawHeader = opts?.headers?.Accept === 'application/vnd.github.v3.raw';
+      if (hasRawHeader) {
+        // Content fetch — return markdown text
+        return Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Test Heading\n\nContent here.'),
+        });
       }
-      // GET content
-      return Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve('# Test Heading\n\nContent here.'),
-      });
+      // File probe — check URL for known files
+      const ok = url.includes('README.md') || url.includes('PROGRESS.md');
+      return Promise.resolve({ ok });
     });
   });
 

@@ -2,11 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN || '';
+
 const CANDIDATE_FILES = [
   'README.md', 'PROGRESS.md', 'TODO.md', 'CHANGELOG.md',
   'CONTRIBUTING.md', 'AGENTS.md', 'API_REFERENCE.md',
   'docs/README.md', 'docs/PROGRESS.md', '.github/PROGRESS.md',
 ];
+
+function ghHeaders() {
+  const h = {};
+  if (GITHUB_TOKEN) h['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+  return h;
+}
 
 const REPOS = [
   { owner: 'liante0904', repo: 'ssh-management-hub-fastAPI', label: 'Management Hub API' },
@@ -95,11 +103,11 @@ function RepoRow({ owner, repo, label }) {
     for (const file of toProbe) {
       for (const branch of branches) {
         try {
-          const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`;
-          if ((await fetch(url, { method: 'HEAD' })).ok) { found.push({ path: file, name: file.split('/').pop() }); break; }
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`;
+          if ((await fetch(url, { headers: ghHeaders() })).ok) { found.push({ path: file, name: file.split('/').pop() }); break; }
         } catch {}
       }
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise(r => setTimeout(r, 120));
     }
 
     found.sort((a, b) => a.name === 'README.md' ? -1 : b.name === 'README.md' ? 1 : a.path.localeCompare(b.path));
@@ -115,7 +123,8 @@ function RepoRow({ owner, repo, label }) {
     setModalFile(file); setModalLoading(true); setModalContent('');
     for (const branch of ['main', 'master']) {
       try {
-        const r = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file.path}`);
+        const headers = { ...ghHeaders(), Accept: 'application/vnd.github.v3.raw' };
+        const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, { headers });
         if (!r.ok) continue;
         setModalContent(await r.text()); setModalLoading(false); return;
       } catch {}
