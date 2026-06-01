@@ -108,6 +108,7 @@ export const api = {
   pdfArchiveStatsDaily: (days = 30) => req('GET', `/api/reports/pdf-archive/stats/daily?days=${days}`),
   pdfArchiveStatsByFirm: () => req('GET', `/api/reports/pdf-archive/stats/by-firm`),
   pdfArchiveReprocess: (body) => req('POST', '/api/reports/pdf-archive/reprocess', body),
+  pdfArchiveDiagnose: (reportId) => req('POST', `/api/reports/pdf-archive/${reportId}/diagnose`),
 
   // Firms
   firms: (search) => {

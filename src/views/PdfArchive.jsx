@@ -22,6 +22,8 @@ export default function PdfArchive() {
   const [retryMsg, setRetryMsg] = useState('');
   const [reprocessForm, setReprocessForm] = useState({ archive_status: '', limit: 100 });
   const [showReprocess, setShowReprocess] = useState(false);
+  const [diagnoseResult, setDiagnoseResult] = useState(null);
+  const [diagnosing, setDiagnosing] = useState(false);
   const { toast, confirm } = useToast();
 
   const load = useCallback(() => {
@@ -129,6 +131,18 @@ export default function PdfArchive() {
     } catch (e) {
       toast.error(e.message);
     }
+  };
+
+  const diagnoseSingle = async (reportId) => {
+    setDiagnosing(true);
+    setDiagnoseResult(null);
+    try {
+      const res = await api.pdfArchiveDiagnose(reportId);
+      setDiagnoseResult(res);
+    } catch (e) {
+      toast.error(e.message);
+    }
+    setDiagnosing(false);
   };
 
   const formatFileSize = (bytes) => {
@@ -247,6 +261,71 @@ export default function PdfArchive() {
         </div>
       )}
 
+      {/* Diagnose Result Panel */}
+      {diagnoseResult && (
+        <div className="card mb1" style={{padding: '1rem', borderLeft: diagnoseResult.reachable ? '4px solid var(--green)' : '4px solid var(--red)'}}>
+          <div className="flex-between" style={{marginBottom: '.5rem'}}>
+            <h4 style={{margin:0}}>🔍 URL 진단: Report #{diagnoseResult.report_id}</h4>
+            <button onClick={() => setDiagnoseResult(null)} style={{fontSize:'.75rem',padding:'.2rem .5rem'}}>닫기</button>
+          </div>
+          <table style={{fontSize: '.8rem', width: '100%'}}>
+            <tbody>
+              <tr>
+                <td style={{fontWeight:500,width:'120px'}}>URL</td>
+                <td style={{wordBreak:'break-all'}}>
+                  {diagnoseResult.article_url ? (
+                    <a href={diagnoseResult.article_url} target="_blank" rel="noopener noreferrer"
+                      style={{color:'var(--accent)'}}>{diagnoseResult.article_url}</a>
+                  ) : '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{fontWeight:500}}>접근 가능</td>
+                <td>
+                  <span className={`badge ${diagnoseResult.reachable ? 'badge-green' : 'badge-red'}`}>
+                    {diagnoseResult.reachable ? '✅ YES' : '❌ NO'}
+                  </span>
+                </td>
+              </tr>
+              {diagnoseResult.http_status && (
+                <tr>
+                  <td style={{fontWeight:500}}>HTTP 상태</td>
+                  <td>
+                    <span className={`badge ${diagnoseResult.http_status < 400 ? 'badge-green' : 'badge-red'}`}>
+                      {diagnoseResult.http_status}
+                    </span>
+                  </td>
+                </tr>
+              )}
+              {diagnoseResult.content_type && (
+                <tr>
+                  <td style={{fontWeight:500}}>Content-Type</td>
+                  <td>{diagnoseResult.content_type}</td>
+                </tr>
+              )}
+              {diagnoseResult.content_length != null && (
+                <tr>
+                  <td style={{fontWeight:500}}>파일 크기</td>
+                  <td>{formatFileSize(diagnoseResult.content_length)}</td>
+                </tr>
+              )}
+              {diagnoseResult.elapsed_ms != null && (
+                <tr>
+                  <td style={{fontWeight:500}}>응답 시간</td>
+                  <td>{diagnoseResult.elapsed_ms}ms</td>
+                </tr>
+              )}
+              {diagnoseResult.error && (
+                <tr>
+                  <td style={{fontWeight:500, color:'var(--red)'}}>오류</td>
+                  <td style={{color:'var(--red)'}}>{diagnoseResult.error}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Stats Panel */}
       {showStats && (
         <div className="mb1" style={{display:'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
@@ -362,6 +441,7 @@ export default function PdfArchive() {
                   <th>증권사</th>
                   <th style={{minWidth: '180px'}}>제목</th>
                   <th>날짜</th>
+                  <th>원본URL</th>
                   <th>파일명</th>
                   <th>크기</th>
                   <th>페이지</th>
@@ -370,7 +450,7 @@ export default function PdfArchive() {
                   <th>PDF Sync</th>
                   <th>재시도</th>
                   <th>텍스트</th>
-                  <th style={{minWidth: '100px'}}>작업</th>
+                  <th style={{minWidth: '130px'}}>작업</th>
                 </tr>
               </thead>
               <tbody>
@@ -383,6 +463,14 @@ export default function PdfArchive() {
                       {r.title || '-'}
                     </td>
                     <td style={{whiteSpace:'nowrap'}}>{r.reg_dt || '-'}</td>
+                    <td style={{maxWidth:'150px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:'.75rem'}}>
+                      {r.article_url ? (
+                        <a href={r.article_url} target="_blank" rel="noopener noreferrer"
+                          title={r.article_url} style={{color:'var(--accent)'}}>
+                          🔗
+                        </a>
+                      ) : '-'}
+                    </td>
                     <td style={{maxWidth:'150px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:'.75rem'}}
                       title={r.file_name}>
                       {r.file_name || '-'}
@@ -407,6 +495,11 @@ export default function PdfArchive() {
                     </td>
                     <td>
                       <div className="flex-row" style={{gap:'.3rem'}}>
+                        <button style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
+                          onClick={() => diagnoseSingle(r.report_id)} disabled={diagnosing}
+                          title="원본 URL 접속 진단">
+                          🔍
+                        </button>
                         {r.archive_status !== 'ARCHIVED' && (
                           <button className="primary" style={{fontSize:'.7rem',padding:'.2rem .4rem'}}
                             onClick={() => retrySingle(r.report_id)} title="재처리">
