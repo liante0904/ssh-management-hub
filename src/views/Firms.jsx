@@ -40,6 +40,24 @@ export default function Firms() {
       .catch(e => toast.error(e.message));
   };
 
+  const toggleGa = async (firm) => {
+    const newVal = firm.ga_enabled_yn === 'Y' ? 'N' : 'Y';
+    const ok = await confirm(
+      `${firm.firm_nm}의 GA 자동 수집을 ${newVal === 'Y' ? '활성화' : '비활성화'}하시겠습니까?`,
+      'GA 설정 변경'
+    );
+    if (!ok) return;
+    api.updateFirm(firm.sec_firm_order, { ga_enabled_yn: newVal })
+      .then(() => {
+        toast.success(`GA 자동 수집이 ${newVal === 'Y' ? '활성화' : '비활성화'}되었습니다.`);
+        load();
+        if (selectedFirm?.sec_firm_order === firm.sec_firm_order) {
+          setSelectedFirm({ ...selectedFirm, ga_enabled_yn: newVal });
+        }
+      })
+      .catch(e => toast.error(e.message));
+  };
+
   const addBoard = async () => {
     const name = await prompt('게시판 이름:');
     if (!name) return;
@@ -119,7 +137,7 @@ export default function Firms() {
           </div>
           <div className="table-wrap" style={{maxHeight: '600px', overflowY: 'auto', border: 'none'}}>
             <table>
-              <thead><tr><th>순서</th><th>증권사명</th><th>텔레그램</th><th>관리</th></tr></thead>
+              <thead><tr><th>순서</th><th>증권사명</th><th>텔레그램</th><th>GA</th><th>관리</th></tr></thead>
               <tbody>
                 {firms.map(f => (
                   <tr key={f.sec_firm_order} 
@@ -137,6 +155,18 @@ export default function Firms() {
                         style={{cursor: 'help'}}
                       >
                         {f.telegram_update_yn === 'Y' ? 'ON' : 'OFF'}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${f.ga_enabled_yn === 'Y' ? 'badge-green' : 'badge-yellow'}`}
+                        title={f.ga_enabled_yn === 'Y'
+                          ? 'GitHub Actions 자동 수집 ON - 클릭하여 OFF'
+                          : 'GitHub Actions 자동 수집 OFF - 클릭하여 ON'}
+                        style={{cursor: 'pointer'}}
+                        onClick={(e) => { e.stopPropagation(); toggleGa(f); }}
+                      >
+                        {f.ga_enabled_yn === 'Y' ? 'ON' : 'OFF'}
                       </span>
                     </td>
                     <td>
