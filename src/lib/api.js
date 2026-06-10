@@ -17,11 +17,17 @@ async function req(method, path, body) {
   const t = token();
   if (t) headers['Authorization'] = `Bearer ${t}`;
 
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (err) {
+    // Network error (e.g., no internet, server down)
+    throw new Error('서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.');
+  }
 
   if (res.status === 401) {
     localStorage.removeItem('mh_token');
@@ -30,11 +36,22 @@ async function req(method, path, body) {
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+    let errBody;
+    try {
+      errBody = await res.json();
+    } catch {
+      errBody = {};
+    }
+    throw new Error(errBody.detail || `HTTP ${res.status} ${res.statusText}`);
   }
 
-  return res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error('서버 응답을 처리할 수 없습니다.');
+  }
+  return data;
 }
 
 export const api = {

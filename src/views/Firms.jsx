@@ -12,7 +12,12 @@ export default function Firms() {
   const load = useCallback(() => {
     api.firms(search || undefined)
       .then(setFirms)
-      .catch(e => toast.error(e.message));
+      .catch(e => {
+        const msg = e.message.includes('서버에 연결할 수 없습니다')
+          ? '증권사 목록을 불러오는 중 오류가 발생했습니다. 서버 연결을 확인해주세요.'
+          : e.message;
+        toast.error(msg);
+      });
   }, [search, toast]);
 
   useEffect(() => {
