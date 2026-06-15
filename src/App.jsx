@@ -13,6 +13,7 @@ import Firms from './views/Firms';
 import Database from './views/Database';
 import Logs from './views/Logs';
 import Progress from './views/Progress';
+import Backfill from './pages/Backfill';
 
 const nav = [
   { path: '/', label: '대시보드', icon: '📊' },
@@ -20,6 +21,7 @@ const nav = [
   { path: '/reports', label: '리포트 관리', icon: '📄' },
   { path: '/pdf-archive', label: 'PDF 관리', icon: '📑' },
   { path: '/firms', label: '증권사 관리', icon: '🏢' },
+  { path: '/backfill', label: '백필', icon: '🔄' },
   { path: '/database', label: 'DB 뷰어', icon: '🗄️' },
   { path: '/logs', label: '로그 뷰어', icon: '📋' },
   { path: '/progress', label: '진행 현황', icon: '📈' },
@@ -126,6 +128,7 @@ export default function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/pdf-archive" element={<PdfArchive />} />
           <Route path="/firms" element={<Firms />} />
+          <Route path="/backfill" element={<Backfill />} />
           <Route path="/database" element={<Database />} />
           <Route path="/logs" element={<Logs />} />
           <Route path="/progress" element={<Progress />} />

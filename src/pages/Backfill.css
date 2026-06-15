@@ -1,0 +1,15 @@
+.backfill-page { padding: 24px; max-width: 900px; margin: 0 auto; }
+.firm-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.firm-chip { padding: 8px 14px; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; font-size: 14px; }
+.firm-chip.active { background: #1976d2; color: white; border-color: #1976d2; }
+.actions { display: flex; gap: 12px; margin: 16px 0; }
+.btn { padding: 10px 20px; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; font-size: 14px; }
+.btn.primary { background: #1976d2; color: white; border: none; }
+.btn.small { padding: 4px 10px; font-size: 12px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.results { margin-top: 24px; }
+.results table { width: 100%; border-collapse: collapse; }
+.results th, .results td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+.results tr.ok { background: #f0fff0; }
+.results tr.fail { background: #fff0f0; }
+.error-banner { background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; margin: 12px 0; }

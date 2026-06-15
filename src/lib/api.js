@@ -138,4 +138,9 @@ export const api = {
   createFirmBoard: (orderId, data) => req('POST', `/api/firms/${orderId}/boards`, data),
   updateFirmBoard: (orderId, boardOrder, data) => req('PUT', `/api/firms/${orderId}/boards/${boardOrder}`, data),
   deleteFirmBoard: (orderId, boardOrder) => req('DELETE', `/api/firms/${orderId}/boards/${boardOrder}`),
+
+  // Backfill
+  backfillFirms: () => req('GET', '/backfill/firms'),
+  backfillRun: (firm) => req('POST', '/backfill/run', { firm }),
+  backfillBatch: (firms, days) => req('POST', '/backfill/run-batch', { firms, days }),
 };
