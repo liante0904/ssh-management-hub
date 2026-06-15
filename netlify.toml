@@ -15,6 +15,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/backfill/*"
+  to = "https://ssh-oci.duckdns.org/backfill/:splat"
+  status = 200
+  force = true
+
 # SPA fallback
 [[redirects]]
   from = "/*"

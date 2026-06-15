@@ -5,10 +5,30 @@ import remarkGfm from 'remark-gfm';
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN || '';
 
 const CANDIDATE_FILES = [
-  'README.md', 'PROGRESS.md', 'TODO.md', 'CHANGELOG.md',
-  'CONTRIBUTING.md', 'AGENTS.md', 'API_REFERENCE.md',
-  'docs/README.md', 'docs/PROGRESS.md', '.github/PROGRESS.md',
+  'README.md', 'PROGRESS.md', 'AGENTS.md', 'CLAUDE.md',
+  'docs/README.md', 'docs/PROGRESS.md',
 ];
+
+// ── 글로벌 요청 큐 (429 Too Many Requests 방지) ──
+let _pending = 0;
+const MAX_CONCURRENT = 3;
+const INTER_FILE_DELAY = 250; // ms between file probes
+
+function _ghFetch(url, options) {
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      _pending++;
+      fetch(url, options)
+        .then(r => { _pending--; resolve(r); })
+        .catch(e => { _pending--; reject(e); });
+    };
+    const wait = () => {
+      if (_pending < MAX_CONCURRENT) attempt();
+      else setTimeout(wait, 200);
+    };
+    wait();
+  });
+}
 
 function ghHeaders() {
   const h = {};
@@ -104,10 +124,10 @@ function RepoRow({ owner, repo, label }) {
       for (const branch of branches) {
         try {
           const url = `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`;
-          if ((await fetch(url, { headers: ghHeaders() })).ok) { found.push({ path: file, name: file.split('/').pop() }); break; }
+          if ((await _ghFetch(url, { headers: ghHeaders() })).ok) { found.push({ path: file, name: file.split('/').pop() }); break; }
         } catch {}
       }
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, INTER_FILE_DELAY));
     }
 
     found.sort((a, b) => a.name === 'README.md' ? -1 : b.name === 'README.md' ? 1 : a.path.localeCompare(b.path));
@@ -124,7 +144,7 @@ function RepoRow({ owner, repo, label }) {
     for (const branch of ['main', 'master']) {
       try {
         const headers = { ...ghHeaders(), Accept: 'application/vnd.github.v3.raw' };
-        const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, { headers });
+        const r = await _ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}?ref=${branch}`, { headers });
         if (!r.ok) continue;
         setModalContent(await r.text()); setModalLoading(false); return;
       } catch {}
