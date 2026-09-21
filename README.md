@@ -34,7 +34,7 @@ npm test           # vitest (38개 테스트)
 ## 인증
 
 - Telegram Login Widget 으로 관리자 인증
-- 비상 로그인: JWT Secret Key 입력
+- 관리자 로그인: Telegram Login Widget
 
 ## API 프록시
 
